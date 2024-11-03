@@ -33,14 +33,14 @@ interface DriverDetailsProps {
   onBack: () => void;
 }
 
-export default function DriverDetails({ application, onBack }: DriverDetailsProps) {
+const DriverDetails: React.FC<DriverDetailsProps> = ({ application, onBack }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [bookingClass, setBookingClass] = useState<string[]>([]);
   const [deliveryClass, setDeliveryClass] = useState<string[]>([]);
   const [applicationData, setApplicationData] = useState<DriverApplication>(application);
-  const [denialReason, setDenialReason] = useState<string>(''); // State for denial reason
-  const [message, setMessage] = useState<string | null>(null); // State for messages
+  const [denialReason, setDenialReason] = useState<string>(''); 
+  const [message, setMessage] = useState<string | null>(null); 
   const router = useRouter();
 
   const createdAtDate = applicationData.createdAt ? new Date(applicationData.createdAt._seconds * 1000) : null;
@@ -84,7 +84,7 @@ export default function DriverDetails({ application, onBack }: DriverDetailsProp
     if (response.ok) {
       console.log( "Response: ",response);
       setMessage("Driver approved successfully");
-      await fetchApplication(); // Refetch application data
+      await fetchApplication(); 
     } else {
       console.log( "Response: ",response);
       setMessage("Failed to approve driver");
@@ -110,7 +110,7 @@ export default function DriverDetails({ application, onBack }: DriverDetailsProp
     if (response.ok) {
       console.log( "Response: ",response);
       setMessage("Driver denied successfully");
-      await fetchApplication(); // Refetch application data
+      await fetchApplication(); 
     } else {
       console.log( "Response: ",response);
       setMessage("Failed to deny driver");
@@ -118,7 +118,6 @@ export default function DriverDetails({ application, onBack }: DriverDetailsProp
   };
 
   const fetchApplication = async () => {
-    // Fetch updated application details from the API
     const response = await fetch(`https://banturide-api.onrender.com/admin/get-driver-application/${applicationData.id}`);
     if (response.ok) {
       const updatedApplication: DriverApplication = await response.json();
@@ -132,9 +131,7 @@ export default function DriverDetails({ application, onBack }: DriverDetailsProp
     <div className="p-6 bg-gray-50 min-h-screen">
       <button onClick={onBack} className="mb-4 text-blue-600 hover:underline">Back to Applications</button>
       <h1 className="mb-6 text-4xl font-bold text-gray-900">Driver Profile</h1>
-
       <div className="bg-white rounded-lg shadow-lg p-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {/* Avatar and Basic Info */}
         <div className="flex flex-col items-center sm:items-start">
           <img src={applicationData.avatar || ''} alt="Driver Avatar" className="w-32 h-32 rounded-full border-4 border-blue-500 shadow-lg" />
           <h2 className="mt-4 text-2xl font-semibold">{applicationData.carMake} {applicationData.carModel}</h2>
@@ -144,7 +141,6 @@ export default function DriverDetails({ application, onBack }: DriverDetailsProp
           <p className="text-lg font-bold text-gray-700"><span className="text-blue-500">Verification Status:</span> {applicationData.driverVerificationStatus}</p>
         </div>
 
-        {/* Vehicle Details */}
         <div className="col-span-2 space-y-4">
           <h3 className="text-xl font-bold text-gray-900">Vehicle Information</h3>
           <div className="bg-gray-100 p-4 rounded-lg shadow-sm">
@@ -155,7 +151,6 @@ export default function DriverDetails({ application, onBack }: DriverDetailsProp
             <p className="font-medium text-gray-700"><span className="font-bold">License Expiry:</span> {applicationData.licenseExpiry}</p>
           </div>
 
-          {/* Images Section */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-white rounded-lg shadow overflow-hidden">
               <img
@@ -194,91 +189,45 @@ export default function DriverDetails({ application, onBack }: DriverDetailsProp
               <p className="p-2 font-medium text-gray-600">Vehicle Image 2</p>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Class Selection */}
-      <div className="mt-6 bg-gray-100 p-4 rounded-lg shadow">
-        <h3 className="text-xl font-bold text-gray-900">Select Classes</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-          <div>
-            <h4 className="font-semibold">Booking Class:</h4>
-            {['bantu-economy', 'bantu-comfort', 'bantu-executive'].map((value) => (
-              <label key={value} className="block">
-                <input
-                  type="checkbox"
-                  checked={bookingClass.includes(value)}
-                  onChange={() => handleCheckboxChange(value, 'booking')}
-                  className="mr-2"
-                />
-                {value}
-              </label>
-            ))}
-          </div>
-          <div>
-            <h4 className="font-semibold">Delivery Class:</h4>
-            {['bantu-micro', 'bantu-regular', 'bantu-macro'].map((value) => (
-              <label key={value} className="block">
-                <input
-                  type="checkbox"
-                  checked={deliveryClass.includes(value)}
-                  onChange={() => handleCheckboxChange(value, 'delivery')}
-                  className="mr-2"
-                />
-                {value}
-              </label>
-            ))}
+          
+          <h3 className="text-xl font-bold text-gray-900">Actions</h3>
+          <div className="space-y-4">
+            <textarea
+              placeholder="Reason for denial (if any)"
+              value={denialReason}
+              onChange={(e) => setDenialReason(e.target.value)}
+              className="w-full p-2 border rounded-md"
+            />
+            <div className="flex space-x-4">
+              <button
+                onClick={handleApprove}
+                className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600"
+              >
+                Approve
+              </button>
+              <button
+                onClick={handleDeny}
+                className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
+              >
+                Deny
+              </button>
+            </div>
+            {message && <p className="text-red-500">{message}</p>}
           </div>
         </div>
       </div>
 
-      {/* Denial Reason Input */}
-      <div className="mt-6">
-        <label htmlFor="denialReason" className="block text-sm font-medium text-gray-700">
-          Reason for Denial (if applicable):
-        </label>
-        <textarea
-          id="denialReason"
-          value={denialReason}
-          onChange={(e) => setDenialReason(e.target.value)}
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 p-2"
-          rows={3}
-          placeholder="Please provide a reason for denial..."
-        />
-      </div>
-
-      {/* Action Buttons */}
-      <div className="mt-6 flex space-x-4">
-        <button
-          onClick={handleApprove}
-          className="flex-1 py-2 px-4 bg-green-600 text-white rounded-lg shadow hover:bg-green-500 focus:outline-none"
-        >
-          Approve
-        </button>
-        <button
-          onClick={handleDeny}
-          className="flex-1 py-2 px-4 bg-red-600 text-white rounded-lg shadow hover:bg-red-500 focus:outline-none"
-        >
-          Deny
-        </button>
-      </div>
-
-      {/* Message Display */}
-      {message && (
-        <div className={`mt-4 text-lg font-semibold ${message.startsWith("Failed") ? "text-red-500" : "text-green-500"}`}>
-          {message}
-        </div>
-      )}
-
-      {/* Image Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-4 rounded-lg relative">
-            <button onClick={closeModal} className="absolute top-2 right-2 text-gray-600 hover:text-gray-900">Close</button>
-            {selectedImage && <img src={selectedImage} alt="Selected" className="max-w-full max-h-full" />}
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-black opacity-50 absolute inset-0" onClick={closeModal}></div>
+          <div className="bg-white rounded-lg p-6 z-10">
+            <img src={selectedImage || ''} alt="Modal" className="w-full h-96 object-cover" />
+            <button className="mt-4 text-blue-600" onClick={closeModal}>Close</button>
           </div>
         </div>
       )}
     </div>
   );
-}
+};
+
+export default DriverDetails; // Make sure this is a valid export
