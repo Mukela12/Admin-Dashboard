@@ -1,11 +1,10 @@
 // app/page.tsx
-import LoginPage from '../components/Login';
-import Page from '@/app/Onboarding/page';
+import LoginPage from '../../components/Login';
 
 const Home = () => {
     return (
         <div>
-            <Page />
+            <LoginPage />
         </div>
     );
 };

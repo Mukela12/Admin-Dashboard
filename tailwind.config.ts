@@ -8,12 +8,25 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      gridTemplateColumns: {
+        '13': 'repeat(13, minmax(0, 1fr))',
+      },
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        blue: {
+          400: '#186F65',
+          500: '#186F65',
+          600: '#186F65',
+        },
+      },
+    },
+    keyframes: {
+      shimmer: {
+        '100%': {
+          transform: 'translateX(100%)',
+        },
       },
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/forms')],
 };
 export default config;
