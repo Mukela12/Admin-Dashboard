@@ -33,7 +33,7 @@ interface DriverDetailsProps {
   onBack: () => void;
 }
 
-export function DriverDetails({ application, onBack }: DriverDetailsProps) {
+export default function DriverDetails({ application, onBack }: DriverDetailsProps) {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [bookingClass, setBookingClass] = useState<string[]>([]);

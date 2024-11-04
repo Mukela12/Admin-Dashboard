@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import DriverTable from "./table"; // Adjust the import based on your structure
-import { DriverDetails } from "./[id]/page"; // Use named import instead of default import
+import DriverDetails from "./[id]/page"
 import { Application } from "@/app/lib/types";
 
 export default function DriverDashboard() {
