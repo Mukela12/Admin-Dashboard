@@ -33,8 +33,7 @@ interface DriverDetailsProps {
   onBack: () => void;
 }
 
-
-const DriverDetails: React.FC<DriverDetailsProps> = ({ application, onBack }) => {
+export default async function DriverDetails({ application, onBack }: DriverDetailsProps) {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [bookingClass, setBookingClass] = useState<string[]>([]);
@@ -283,6 +282,3 @@ const DriverDetails: React.FC<DriverDetailsProps> = ({ application, onBack }) =>
     </div>
   );
 }
-
-export default DriverDetails;
-
