@@ -33,7 +33,7 @@ interface DriverDetailsProps {
   onBack: () => void;
 }
 
-export default async function DriverDetails({ application, onBack }: DriverDetailsProps) {
+export default function DriverDetails({ application, onBack }: DriverDetailsProps) {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [bookingClass, setBookingClass] = useState<string[]>([]);
@@ -79,14 +79,14 @@ export default async function DriverDetails({ application, onBack }: DriverDetai
       }),
     });
 
-    console.log( "Response: ",applicationData.id, applicationData.driverId, bookingClass, deliveryClass);  
+    console.log("Response: ", applicationData.id, applicationData.driverId, bookingClass, deliveryClass);  
 
     if (response.ok) {
-      console.log( "Response: ",response);
+      console.log("Response: ", response);
       setMessage("Driver approved successfully");
       await fetchApplication(); // Refetch application data
     } else {
-      console.log( "Response: ",response);
+      console.log("Response: ", response);
       setMessage("Failed to approve driver");
     }
   };
@@ -108,17 +108,16 @@ export default async function DriverDetails({ application, onBack }: DriverDetai
     });
 
     if (response.ok) {
-      console.log( "Response: ",response);
+      console.log("Response: ", response);
       setMessage("Driver denied successfully");
       await fetchApplication(); // Refetch application data
     } else {
-      console.log( "Response: ",response);
+      console.log("Response: ", response);
       setMessage("Failed to deny driver");
     }
   };
 
   const fetchApplication = async () => {
-    // Fetch updated application details from the API
     const response = await fetch(`https://banturide-api.onrender.com/admin/get-driver-application/${applicationData.id}`);
     if (response.ok) {
       const updatedApplication: DriverApplication = await response.json();
