@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import DriverTable from './table';
-import DriverDetails from "./[id]/page"
+import DriverDetails from "./[id]/DriverDetails/DriverDetails"
 import { Application } from "@/app/lib/types";
 
 export default function Page() {

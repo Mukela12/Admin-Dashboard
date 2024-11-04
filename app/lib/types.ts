@@ -24,6 +24,31 @@ export interface Application {
     driverVerificationStatus: string;
   }
   
+  export interface DriverApplication {
+    id: string;
+    driverId: string;
+    avatar: string;
+    insuranceCertificateImage?: string | null;
+    driversLicenseImage?: string | null;
+    seats: string;
+    vehicleImage1: string;
+    vehicleImage2: string;
+    canDriver: boolean;
+    canDeliver: boolean;
+    carColor: string;
+    licenseExpiry: string;
+    licenseNumber: string;
+    vehicleReg: string;
+    carMake: string;
+    carModel: string;
+    nrc: string;
+    createdAt: {
+      _seconds: number;
+      _nanoseconds: number;
+    } | null;
+    driverVerificationStatus: string;
+  }
+
   export interface Complaint {
     id: string;
     complaintRelation: string;
