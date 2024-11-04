@@ -1,7 +1,6 @@
-// app/dashboard/drivers/[id]/DriverDetailsClient.tsx
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface DriverApplication {
@@ -29,18 +28,20 @@ interface DriverApplication {
   driverVerificationStatus: string;
 }
 
-interface DriverDetailsClientProps {
+interface DriverDetailsProps {
   application: DriverApplication;
+  onBack: () => void;
 }
 
-export default function DriverDetailsClient({ application }: DriverDetailsClientProps) {
+
+const DriverDetails: React.FC<DriverDetailsProps> = ({ application, onBack }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [bookingClass, setBookingClass] = useState<string[]>([]);
   const [deliveryClass, setDeliveryClass] = useState<string[]>([]);
   const [applicationData, setApplicationData] = useState<DriverApplication>(application);
-  const [denialReason, setDenialReason] = useState<string>('');
-  const [message, setMessage] = useState<string | null>(null);
+  const [denialReason, setDenialReason] = useState<string>(''); // State for denial reason
+  const [message, setMessage] = useState<string | null>(null); // State for messages
   const router = useRouter();
 
   const createdAtDate = applicationData.createdAt ? new Date(applicationData.createdAt._seconds * 1000) : null;
@@ -79,10 +80,14 @@ export default function DriverDetailsClient({ application }: DriverDetailsClient
       }),
     });
 
+    console.log( "Response: ",applicationData.id, applicationData.driverId, bookingClass, deliveryClass);  
+
     if (response.ok) {
+      console.log( "Response: ",response);
       setMessage("Driver approved successfully");
-      await fetchApplication();
+      await fetchApplication(); // Refetch application data
     } else {
+      console.log( "Response: ",response);
       setMessage("Failed to approve driver");
     }
   };
@@ -104,14 +109,17 @@ export default function DriverDetailsClient({ application }: DriverDetailsClient
     });
 
     if (response.ok) {
+      console.log( "Response: ",response);
       setMessage("Driver denied successfully");
-      await fetchApplication();
+      await fetchApplication(); // Refetch application data
     } else {
+      console.log( "Response: ",response);
       setMessage("Failed to deny driver");
     }
   };
 
   const fetchApplication = async () => {
+    // Fetch updated application details from the API
     const response = await fetch(`https://banturide-api.onrender.com/admin/get-driver-application/${applicationData.id}`);
     if (response.ok) {
       const updatedApplication: DriverApplication = await response.json();
@@ -123,8 +131,7 @@ export default function DriverDetailsClient({ application }: DriverDetailsClient
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <button onClick={() => router.back()} className="mb-4 text-blue-600 hover:underline">Back to Applications</button>
-      {/* Rest of your JSX remains exactly the same */}
+      <button onClick={onBack} className="mb-4 text-blue-600 hover:underline">Back to Applications</button>
       <h1 className="mb-6 text-4xl font-bold text-gray-900">Driver Profile</h1>
 
       <div className="bg-white rounded-lg shadow-lg p-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -276,3 +283,6 @@ export default function DriverDetailsClient({ application }: DriverDetailsClient
     </div>
   );
 }
+
+export default DriverDetails;
+

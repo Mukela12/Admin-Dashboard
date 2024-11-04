@@ -32,7 +32,7 @@ export default function Page() {
       {!selectedApplication ? (
         <DriverTable applications={applications} onSelect={setSelectedApplication} />
       ) : (
-        <DriverDetails application={selectedApplication} />
+        <DriverDetails application={selectedApplication} onBack={() => setSelectedApplication(null)} />
       )}
     </main>
   );
