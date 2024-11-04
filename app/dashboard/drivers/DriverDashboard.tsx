@@ -37,7 +37,7 @@ export default function DriverDashboard() {
       {!selectedApplication ? (
         <DriverTable applications={applications} onSelect={setSelectedApplication} />
       ) : (
-        <DriverDetails application={selectedApplication} onBack={() => setSelectedApplication(null)} />
+        <DriverDetails application={selectedApplication} />
       )}
     </div>
   );
