@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { CheckCircleIcon, XCircleIcon, ExclamationCircleIcon } from "@heroicons/react/24/outline";
-import Search from "@/app/search";
+import { CheckCircleIcon, XCircleIcon, ExclamationCircleIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Application } from "@/app/lib/types";
 
 interface DriverTableProps {
@@ -13,12 +12,14 @@ interface DriverTableProps {
 
 export default function DriverTable({ applications, onSelect }: DriverTableProps) {
   const [filteredApplications, setFilteredApplications] = useState<Application[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     setFilteredApplications(applications || []);
   }, [applications]);
 
   const handleSearch = (term: string) => {
+    setSearchTerm(term);
     const lowerCaseTerm = term.toLowerCase();
     setFilteredApplications(
       applications.filter((application) =>
@@ -30,93 +31,140 @@ export default function DriverTable({ applications, onSelect }: DriverTableProps
     );
   };
 
-  const getStatusDetails = (status: string) => {
-    switch (status) {
+// drivers/table.tsx
+const getStatusDetails = (status: string) => {
+  console.log("Status:", status); // Keep for debugging
+  switch (status) {
       case "approved":
-        return {
-          color: "bg-green-100 text-green-600",
-          icon: <CheckCircleIcon className="h-5 w-5" aria-hidden="true" />
-        };
+          return {
+              color: "status-approved",
+              icon: <CheckCircleIcon className="h-4 w-4" aria-hidden="true" />
+          };
+      case "denied":
+      case "failed": // Keep 'failed' for backward compatibility
+          return {
+              color: "status-failed",
+              icon: <XCircleIcon className="h-4 w-4" aria-hidden="true" />
+          };
       case "pending":
-        return {
-          color: "bg-orange-100 text-orange-600",
-          icon: <ExclamationCircleIcon className="h-5 w-5" aria-hidden="true" />
-        };
-      case "failed":
-        return {
-          color: "bg-red-100 text-red-600",
-          icon: <XCircleIcon className="h-5 w-5" aria-hidden="true" />
-        };
+          return {
+              color: "status-pending",
+              icon: <ExclamationCircleIcon className="h-4 w-4" aria-hidden="true" />
+          };
       default:
-        return {
-          color: "bg-gray-100 text-gray-600",
-          icon: null
-        };
-    }
-  };
+          return {
+              color: "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300",
+              icon: null
+          };
+  }
+};
 
   return (
-    <div className="w-full p-6 bg-white rounded-lg shadow-md">
-      <h1 className="mb-8 text-xl md:text-2xl font-bold text-gray-800">Driver Applications</h1>
-      <Search placeholder="Search drivers..." onSearch={handleSearch} />
-      <div className="mt-6 flow-root">
+    <div className="w-full">
+      {/* Header Section */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Driver Applications</h1>
+        <p className="text-gray-600 dark:text-gray-400">Manage and review driver applications</p>
+      </div>
+
+      {/* Search Bar */}
+      <div className="mb-6">
+        <div className="relative max-w-md">
+          <input
+            type="text"
+            placeholder="Search by car make, model, license, or color..."
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="modern-input pl-10"
+          />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+        </div>
+      </div>
+
+      {/* Table Container */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div className="overflow-x-auto">
-          <div className="inline-block min-w-full align-middle">
-            <div className="overflow-hidden rounded-lg border border-gray-200">
-              <table className="min-w-full divide-y divide-gray-200 bg-gray-50 text-gray-800">
-                <thead className="bg-gray-200 text-left text-sm font-semibold uppercase tracking-wide text-gray-600">
-                  <tr>
-                    <th scope="col" className="px-4 py-4">Car Make & Model</th>
-                    <th scope="col" className="px-4 py-4">License Number</th>
-                    <th scope="col" className="px-4 py-4">Seats</th>
-                    <th scope="col" className="px-4 py-4">Car Color</th>
-                    <th scope="col" className="px-4 py-4">Status</th>
-                    <th scope="col" className="px-4 py-4 text-center">Actions</th>
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-900">
+              <tr>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                  Driver Details
+                </th>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                  License Number
+                </th>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                  Vehicle Info
+                </th>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                  Status
+                </th>
+                <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              {filteredApplications.map((application) => {
+                const { color, icon } = getStatusDetails(application.driverVerificationStatus);
+                return (
+                  <tr key={application.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center">
+                        <div className="h-12 w-12 flex-shrink-0 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700">
+                          <Image
+                            src={application.avatar || "/placeholder.png"}
+                            alt={`${application.carMake} ${application.carModel}`}
+                            width={48}
+                            height={48}
+                            className="h-12 w-12 object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = "/placeholder.png";
+                            }}
+                          />
+                        </div>
+                        <div className="ml-4">
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                            {application.carMake} {application.carModel}
+                          </p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">ID: {application.driverId}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm text-gray-900 dark:text-gray-300">{application.licenseNumber}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div>
+                        <p className="text-sm text-gray-900 dark:text-gray-300">{application.seats} seats</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{application.carColor}</p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`status-badge ${color}`}>
+                        {icon}
+                        <span>{application.driverVerificationStatus.charAt(0).toUpperCase() + application.driverVerificationStatus.slice(1)}</span>
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        onClick={() => onSelect(application)}
+                        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm transition-colors"
+                      >
+                        View Details
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 bg-white">
-                  {filteredApplications.map((application) => {
-                    const { color, icon } = getStatusDetails(application.driverVerificationStatus);
-                    return (
-                      <tr key={application.id} className="hover:bg-gray-100 transition">
-                        <td className="px-4 py-5 text-sm">
-                          <div className="flex items-center gap-3">
-                            <Image
-                              src={application.avatar || "/placeholder.png"}
-                              className="rounded-full"
-                              alt={`${application.carMake} ${application.carModel}`}
-                              width={32}
-                              height={32}
-                              onError={(e) => {
-                                e.currentTarget.src = "/placeholder.png";
-                              }}
-                            />
-                            <span>{application.carMake} {application.carModel}</span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-5 text-sm">{application.licenseNumber}</td>
-                        <td className="px-4 py-5 text-sm">{application.seats}</td>
-                        <td className="px-4 py-5 text-sm">{application.carColor}</td>
-                        <td className="px-4 py-5 text-sm">
-                          <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${color}`}>
-                            {icon} {application.driverVerificationStatus.charAt(0).toUpperCase() + application.driverVerificationStatus.slice(1).toLowerCase()}
-                          </span>
-                        </td>
-                        <td className="px-4 py-5 text-center">
-                          <button onClick={() => onSelect(application)} className="text-indigo-600 hover:text-indigo-900">
-                            See More
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-              {filteredApplications.length === 0 && (
-                <p className="p-4 text-gray-500 text-center">No matching applications found.</p>
-              )}
+                );
+              })}
+            </tbody>
+          </table>
+          
+          {filteredApplications.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-500 dark:text-gray-400">No applications found matching your search.</p>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

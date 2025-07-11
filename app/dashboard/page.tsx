@@ -8,41 +8,65 @@ import {
   LatestInvoicesSkeleton,
   CardsSkeleton,
 } from '@/app/dashboard-ui/skeletons';
-
 import ApprovalRatioChart from '@/app/dashboard-ui/ApprovalRatioChart';
 import WeeklyComplaintsChart from '@/app/dashboard-ui/WeeklyComplaintsChart';
 import ProcessingTimeChart from '@/app/dashboard-ui/ProcessingTimeChart';
-import Layout from '@/app/dashboard/layout';
 
 export default async function Page() {
   return (
-    <main>
-      <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
-        Dashboard
-      </h1>
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <main className="relative">
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className={`${lusitana.className} text-3xl font-bold text-gray-900 dark:text-white mb-2`}>
+          Dashboard Overview
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400">Welcome back to BantuRide Admin</p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         <Suspense fallback={<CardsSkeleton />}>
           <CardWrapper />
         </Suspense>
       </div>
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
-        <Suspense fallback={<RevenueChartSkeleton />}>
-          <RevenueChart />
-        </Suspense>
-        <Suspense fallback={<LatestInvoicesSkeleton />}>
-          <LatestInvoices />
-        </Suspense>
-        <Suspense fallback={<RevenueChartSkeleton />}>
-          <ApprovalRatioChart />
-        </Suspense>
-        <Suspense fallback={<RevenueChartSkeleton />}>
-          <WeeklyComplaintsChart />
-        </Suspense>
-        <Suspense fallback={<RevenueChartSkeleton />}>
-          <ProcessingTimeChart />
-        </Suspense>
+
+      {/* Main Chart and Complaints Section */}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 mb-8">
+        {/* Main Chart */}
+        <div className="lg:col-span-8">
+          <Suspense fallback={<RevenueChartSkeleton />}>
+            <RevenueChart />
+          </Suspense>
+        </div>
+
+        {/* Latest Complaints */}
+        <div className="lg:col-span-4">
+          <Suspense fallback={<LatestInvoicesSkeleton />}>
+            <LatestInvoices />
+          </Suspense>
+        </div>
+      </div>
+
+      {/* Bottom Row Charts - All Same Height */}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="h-[400px]">
+          <Suspense fallback={<RevenueChartSkeleton />}>
+            <ApprovalRatioChart />
+          </Suspense>
+        </div>
+        
+        <div className="h-[400px]">
+          <Suspense fallback={<RevenueChartSkeleton />}>
+            <WeeklyComplaintsChart />
+          </Suspense>
+        </div>
+        
+        <div className="h-[400px]">
+          <Suspense fallback={<RevenueChartSkeleton />}>
+            <ProcessingTimeChart />
+          </Suspense>
+        </div>
       </div>
     </main>
   );
 }
-

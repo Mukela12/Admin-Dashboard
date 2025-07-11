@@ -1,10 +1,10 @@
-import { BanknotesIcon, ClockIcon, UserGroupIcon, InboxIcon } from '@heroicons/react/24/outline';
+import { BanknotesIcon, ClockIcon, UserGroupIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { lusitana } from '@/app/fonts';
-import { Application, Complaint } from '@/app/lib/types'; // Import the types
+import { Application, Complaint } from '@/app/lib/types';
 
 async function fetchDriverApplications(): Promise<Application[]> {
   try {
-    const response = await fetch('https://banturide-api.onrender.com/admin/get-driver-applications');
+    const response = await fetch('https://banturide-api-production.up.railway.app/admin/get-driver-applications');
     const data = await response.json();
 
     if (data.success && data.applications) {
@@ -21,7 +21,7 @@ async function fetchDriverApplications(): Promise<Application[]> {
 
 async function fetchComplaints(): Promise<Complaint[]> {
   try {
-    const response = await fetch('https://banturide-api.onrender.com/admin/get-complaints');
+    const response = await fetch('https://banturide-api-production.up.railway.app/admin/get-complaints');
     const data = await response.json();
 
     if (data.success && data.complaints) {
@@ -37,13 +37,40 @@ async function fetchComplaints(): Promise<Complaint[]> {
 }
 
 export default async function CardWrapper() {
-  const numberOfApplications = (await fetchDriverApplications()).length || 0;
-  const numberOfComplaints = (await fetchComplaints()).length || 0;
+  const applications = await fetchDriverApplications();
+  const complaints = await fetchComplaints();
+  
+  const totalApplications = applications.length;
+  const totalComplaints = complaints.length;
+  const pendingApplications = applications.filter(app => app.driverVerificationStatus === 'pending').length;
+  const approvedApplications = applications.filter(app => app.driverVerificationStatus === 'approved').length;
 
   return (
     <>
-      <Card title="Total Applications" value={numberOfApplications} type="invoices" />
-      <Card title="Total Complaints" value={numberOfComplaints} type="customers" />
+      <Card 
+        title="Total Applications" 
+        value={totalApplications} 
+        type="invoices"
+        gradient="from-blue-600 to-blue-700"
+      />
+      <Card 
+        title="Total Complaints" 
+        value={totalComplaints} 
+        type="customers"
+        gradient="from-red-600 to-red-700"
+      />
+      <Card 
+        title="Pending Review" 
+        value={pendingApplications} 
+        type="pending"
+        gradient="from-yellow-600 to-yellow-700"
+      />
+      <Card 
+        title="Approved Drivers" 
+        value={approvedApplications} 
+        type="collected"
+        gradient="from-green-600 to-green-700"
+      />
     </>
   );
 }
@@ -52,31 +79,42 @@ export function Card({
   title,
   value,
   type,
+  gradient,
 }: {
   title: string;
   value: number | string;
   type: 'invoices' | 'customers' | 'pending' | 'collected';
+  gradient: string;
 }) {
   const iconMap = {
     collected: BanknotesIcon,
-    customers: UserGroupIcon,
+    customers: ExclamationCircleIcon,
     pending: ClockIcon,
-    invoices: InboxIcon,
+    invoices: UserGroupIcon,
   };
 
   const Icon = iconMap[type];
 
   return (
-    <div className="rounded-xl bg-gray-50 p-2 shadow-sm">
-      <div className="flex p-4">
-        {Icon ? <Icon className="h-5 w-5 text-gray-700" /> : null}
-        <h3 className="ml-2 text-sm font-medium">{title}</h3>
+    <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+      {/* Background Decoration */}
+      <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-5 dark:opacity-10`} />
+      
+      {/* Icon Container */}
+      <div className={`mb-4 inline-flex rounded-xl bg-gradient-to-br ${gradient} p-3 shadow-lg`}>
+        {Icon && <Icon className="h-6 w-6 text-white" />}
       </div>
-      <p
-        className={`${lusitana.className} truncate rounded-xl bg-white px-4 py-8 text-center text-2xl`}
-      >
-        {value}
-      </p>
+      
+      {/* Content */}
+      <div>
+        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
+        <p className={`${lusitana.className} mt-2 text-3xl font-bold text-gray-900 dark:text-white`}>
+          {value}
+        </p>
+      </div>
+      
+      {/* Subtle Border Gradient */}
+      <div className={`absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r ${gradient}`} />
     </div>
   );
 }

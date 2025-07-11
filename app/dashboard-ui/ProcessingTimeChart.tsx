@@ -1,7 +1,6 @@
-// ProcessingTimeChart.tsx
-"use client"; // Marking this file as a client component
+"use client";
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -11,43 +10,46 @@ import {
   PointElement,
   Tooltip,
   Legend,
+  Filler,
 } from 'chart.js';
-import { Application } from '@/app/lib/types'; // Adjust the import path as necessary
+import { Application } from '@/app/lib/types';
 
-// Register chart components with ChartJS
-ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend);
+ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend, Filler);
 
-// Fetch applications data from the API
-async function fetchApplications(): Promise<Application[]> {
-  const response = await fetch('https://banturide-api.onrender.com/admin/get-applications');
-  const data = await response.json();
-  return data.applications || [];
+interface ProcessingTimeChartProps {
+  applications?: Application[];
 }
 
-export default function ProcessingTimeChart() {
-  const [processingTimes, setProcessingTimes] = useState<number[]>([]);
-  const [labels, setLabels] = useState<string[]>([]);
+export default function ProcessingTimeChart({ applications = [] }: ProcessingTimeChartProps) {
+  if (!applications || applications.length === 0) {
+    return (
+      <div className="chart-container h-full flex flex-col items-center justify-center">
+        <h2 className="lusitana text-xl font-bold text-gray-900 dark:text-white mb-6">
+          Average Processing Time
+        </h2>
+        <p className="text-gray-600 dark:text-gray-300">No data available</p>
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    async function calculateProcessingTimes() {
-      const applications = await fetchApplications();
+  const sortedApplications = applications.sort((a, b) => {
+    return (a.createdAt?._seconds || 0) - (b.createdAt?._seconds || 0);
+  });
 
-      // Calculate processing times in days
-      const times = applications.map((app) => {
-        if (!app.createdAt || !app.updatedAt) return 0; // Handle missing dates
-        const submittedAt = new Date(app.createdAt._seconds * 1000).getTime();
-        const processedAt = new Date(app.updatedAt._seconds * 1000).getTime();
-        return (processedAt - submittedAt) / (1000 * 60 * 60 * 24); // time in days
-      });
+  const processingTimes = sortedApplications.map((app) => {
+    if (!app.createdAt || !app.updatedAt) return 0;
+    const submittedAt = new Date(app.createdAt._seconds * 1000).getTime();
+    const processedAt = new Date(app.updatedAt._seconds * 1000).getTime();
+    return Math.max(0, (processedAt - submittedAt) / (1000 * 60 * 60 * 24));
+  });
 
-      // Generate labels (you can adjust this for better date formatting)
-      const dateLabels = applications.map((app, i) => `App ${i + 1}`);
-      setProcessingTimes(times);
-      setLabels(dateLabels);
-    }
-
-    calculateProcessingTimes();
-  }, []);
+  const labels = sortedApplications.map((app) => {
+    if (!app.createdAt) return '';
+    return new Date(app.createdAt._seconds * 1000).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    });
+  });
 
   const data = {
     labels,
@@ -55,46 +57,80 @@ export default function ProcessingTimeChart() {
       {
         label: 'Processing Time (Days)',
         data: processingTimes,
-        fill: false,
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        tension: 0.2,
+        fill: true,
+        backgroundColor: (context: any) => {
+          const ctx = context.chart.ctx;
+          const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+          gradient.addColorStop(0, 'rgba(99, 102, 241, 0.3)');
+          gradient.addColorStop(1, 'rgba(99, 102, 241, 0.01)');
+          return gradient;
+        },
+        borderColor: 'rgb(99, 102, 241)',
+        borderWidth: 3,
+        tension: 0.4,
+        pointRadius: 4,
+        pointBackgroundColor: 'white',
+        pointBorderColor: 'rgb(99, 102, 241)',
+        pointBorderWidth: 2,
+        pointHoverRadius: 6,
       },
     ],
   };
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top' as const,
+        display: false,
       },
       tooltip: {
-        mode: 'index' as const,
-        intersect: false,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        padding: 12,
+        borderRadius: 8,
+        titleFont: {
+          size: 14,
+        },
+        bodyFont: {
+          size: 13,
+        },
+        callbacks: {
+          label: (context: any) => `${context.parsed.y.toFixed(1)} days`,
+        },
       },
     },
     scales: {
       x: {
-        title: {
-          display: true,
-          text: 'Applications',
+        grid: {
+          display: false,
+          color: 'rgba(0, 0, 0, 0.1)',
+        },
+        ticks: {
+          color: '#4B5563',
+          maxRotation: 0,
+          autoSkip: true,
+          maxTicksLimit: 6,
         },
       },
       y: {
-        title: {
-          display: true,
-          text: 'Processing Time (Days)',
-        },
         beginAtZero: true,
+        grid: {
+          color: 'rgba(0, 0, 0, 0.1)',
+        },
+        ticks: {
+          color: '#4B5563',
+          callback: (value: any) => `${value}d`,
+        },
       },
     },
   };
 
   return (
-    <div className="w-full md:col-span-4">
-      <h2 className="text-xl md:text-2xl mb-4">Processing Time per Application</h2>
-      <div className="rounded-xl bg-gray-50 p-4">
+    <div className="chart-container h-full flex flex-col">
+      <h2 className="lusitana text-xl font-bold text-gray-900 dark:text-white mb-6">
+        Average Processing Time
+      </h2>
+      <div className="flex-1" style={{ minHeight: '300px' }}>
         <Line data={data} options={options} />
       </div>
     </div>

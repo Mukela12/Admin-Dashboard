@@ -11,7 +11,7 @@ export default function Page() {
 
   const fetchDriverApplications = async () => {
     try {
-      const response = await fetch("https://banturide-api.onrender.com/admin/get-driver-applications");
+      const response = await fetch("https://banturide-api-production.up.railway.app/admin/get-driver-applications");
       if (!response.ok) {
         throw new Error("Failed to fetch driver applications");
       }

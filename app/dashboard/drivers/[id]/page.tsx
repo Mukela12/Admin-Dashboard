@@ -15,7 +15,7 @@ const DriverPage = () => {
 
   const fetchApplicationDetails = async () => {
     try {
-      const response = await fetch(`https://banturide-api.onrender.com/admin/get-driver-application/${id}`);
+      const response = await fetch(`https://banturide-api-production.up.railway.app/admin/get-driver-application/${id}`);
       if (!response.ok) {
         throw new Error("Failed to fetch application details");
       }

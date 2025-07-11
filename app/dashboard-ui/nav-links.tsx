@@ -1,48 +1,25 @@
-'use client';
-
-import { UserGroupIcon, HomeIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, UserGroupIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import clsx from 'clsx';
-
-// Map of links to display in the side navigation.
-const links = [
-  { name: 'Home', href: '/dashboard', icon: HomeIcon },
-  {
-    name: 'Applications',
-    href: '/dashboard/drivers', // Changed to reflect driver applications
-    icon: UserGroupIcon,
-  },
-  {
-    name: 'Complaints',
-    href: '/dashboard/complaints', // Added a link to complaints
-    icon: DocumentDuplicateIcon,
-  },
-];
 
 export default function NavLinks() {
-  const pathname = usePathname();
-
   return (
-    <>
-      {links.map((link) => {
-        const LinkIcon = link.icon;
-        return (
-          <Link
-            key={link.name}
-            href={link.href}
-            className={clsx(
-              'flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3',
-              {
-                'bg-sky-100 text-blue-600': pathname === link.href,
-              },
-            )}
-          >
-            <LinkIcon className="w-6" />
-            <p className="hidden md:block">{link.name}</p>
-          </Link>
-        );
-      })}
-    </>
+    <div className="space-y-2">
+      <Link href="/dashboard" className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+        <HomeIcon className="h-5 w-5" />
+        <span>Dashboard</span>
+      </Link>
+      <Link href="/dashboard/drivers" className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+        <UserGroupIcon className="h-5 w-5" />
+        <span>Drivers</span>
+      </Link>
+      <Link href="/dashboard/child-pickup" className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+        <UserGroupIcon className="h-5 w-5" />
+        <span>Child Pickup Applications</span>
+      </Link>
+      <Link href="/dashboard/complaints" className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+        <ExclamationCircleIcon className="h-5 w-5" />
+        <span>Complaints</span>
+      </Link>
+    </div>
   );
 }
