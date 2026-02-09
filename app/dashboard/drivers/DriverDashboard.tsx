@@ -17,7 +17,7 @@ export default function DriverDashboard({ initialDriverApplications, initialChil
 
   const fetchDriverApplications = async () => {
     try {
-      const response = await fetch("https://banturide-api-production.up.railway.app/admin/get-driver-applications");
+      const response = await fetch("/api/dashboard/applications");
       if (!response.ok) throw new Error(`Failed to fetch driver applications: ${response.status}`);
       const data = await response.json();
       console.log("Driver applications response:", data); // Debug log
@@ -30,7 +30,7 @@ export default function DriverDashboard({ initialDriverApplications, initialChil
 
   const fetchChildPickupApplications = async () => {
     try {
-      const response = await fetch("https://banturide-api-production.up.railway.app/admin/get-child-pickup-applications");
+      const response = await fetch("/api/dashboard/child-pickup-applications");
       if (!response.ok) throw new Error(`Failed to fetch child pickup applications: ${response.status}`);
       const data = await response.json();
       console.log("Child pickup applications response:", data); // Debug log
@@ -62,15 +62,15 @@ export default function DriverDashboard({ initialDriverApplications, initialChil
         <ProcessingTimeChart applications={driverApplications} />
       </div>
       <div className="mb-6">
-        <div className="flex space-x-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex space-x-4 border-b border-slate-200 dark:border-slate-700">
           <button
-            className={`px-4 py-2 text-sm font-medium ${activeTab === "drivers" ? "border-b-2 border-blue-600 text-blue-600 dark:text-blue-400" : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"}`}
+            className={`px-4 py-2 text-sm font-medium ${activeTab === "drivers" ? "border-b-2 border-blue-600 text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"}`}
             onClick={() => setActiveTab("drivers")}
           >
             Driver Applications
           </button>
           <button
-            className={`px-4 py-2 text-sm font-medium ${activeTab === "childPickup" ? "border-b-2 border-blue-600 text-blue-600 dark:text-blue-400" : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"}`}
+            className={`px-4 py-2 text-sm font-medium ${activeTab === "childPickup" ? "border-b-2 border-blue-600 text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"}`}
             onClick={() => setActiveTab("childPickup")}
           >
             Child Pickup Applications
@@ -103,7 +103,7 @@ export default function DriverDashboard({ initialDriverApplications, initialChil
 export async function getServerSideProps() {
   const fetchDriverApplications = async () => {
     try {
-      const response = await fetch("https://banturide-api-production.up.railway.app/admin/get-driver-applications");
+      const response = await fetch("/api/dashboard/applications");
       if (!response.ok) throw new Error(`Failed to fetch driver applications: ${response.status}`);
       const data = await response.json();
       console.log("Server-side driver applications response:", data); // Debug log
@@ -116,7 +116,7 @@ export async function getServerSideProps() {
 
   const fetchChildPickupApplications = async () => {
     try {
-      const response = await fetch("https://banturide-api-production.up.railway.app/admin/get-child-pickup-applications");
+      const response = await fetch("/api/dashboard/child-pickup-applications");
       if (!response.ok) throw new Error(`Failed to fetch child pickup applications: ${response.status}`);
       const data = await response.json();
       console.log("Server-side child pickup applications response:", data); // Debug log

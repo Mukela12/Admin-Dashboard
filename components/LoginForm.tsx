@@ -4,7 +4,6 @@
 import { AtSymbolIcon, KeyIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { useState } from 'react';
-import axios from 'axios';
 import { lusitana } from '@/app/fonts';
 
 export default function LoginForm() {
@@ -19,16 +18,19 @@ export default function LoginForm() {
         setErrorMessage('');
 
         try {
-            const response = await axios.post('https://banturide-api-production.up.railway.app/admin/login-admin', {
-                email,
-                password,
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
             });
 
-            if (response.data.success) {
-                localStorage.setItem('token', response.data.token);
+            const data = await response.json();
+
+            if (data.success) {
+                localStorage.setItem('token', data.token);
                 window.location.href = '/dashboard';
             } else {
-                setErrorMessage(response.data.message);
+                setErrorMessage(data.message || 'Invalid credentials');
             }
         } catch (err) {
             setErrorMessage('An error occurred. Please try again.');
@@ -44,12 +46,12 @@ export default function LoginForm() {
                     <h1 className={`${lusitana.className} text-3xl font-bold text-white mb-2`}>
                         Welcome Back
                     </h1>
-                    <p className="text-gray-300">Sign in to access your dashboard</p>
+                    <p className="text-slate-300">Sign in to access your dashboard</p>
                 </div>
                 
                 <div className="space-y-6">
                     <div>
-                        <label className="block text-sm font-medium text-gray-200 mb-2" htmlFor="email">
+                        <label className="block text-sm font-medium text-slate-200 mb-2" htmlFor="email">
                             Email Address
                         </label>
                         <div className="relative">
@@ -63,12 +65,12 @@ export default function LoginForm() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                             />
-                            <AtSymbolIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                            <AtSymbolIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 pointer-events-none" />
                         </div>
                     </div>
                     
                     <div>
-                        <label className="block text-sm font-medium text-gray-200 mb-2" htmlFor="password">
+                        <label className="block text-sm font-medium text-slate-200 mb-2" htmlFor="password">
                             Password
                         </label>
                         <div className="relative">
@@ -83,7 +85,7 @@ export default function LoginForm() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                             />
-                            <KeyIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                            <KeyIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 pointer-events-none" />
                         </div>
                     </div>
                 </div>

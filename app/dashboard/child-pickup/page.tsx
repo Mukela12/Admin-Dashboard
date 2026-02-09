@@ -11,11 +11,7 @@ export default function ChildPickupPage() {
 
   const fetchChildPickupApplications = async () => {
     try {
-      const response = await fetch("https://banturide-api-production.up.railway.app/admin/get-child-pickup-applications", {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming token-based auth
-        }
-      });
+      const response = await fetch("/api/dashboard/child-pickup-applications");
       if (!response.ok) throw new Error("Failed to fetch child pickup applications");
       const data = await response.json();
       setApplications(data.applications || []);

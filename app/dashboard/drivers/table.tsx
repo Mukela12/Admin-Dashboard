@@ -23,51 +23,49 @@ export default function DriverTable({ applications, onSelect }: DriverTableProps
     const lowerCaseTerm = term.toLowerCase();
     setFilteredApplications(
       applications.filter((application) =>
-        application.carMake.toLowerCase().includes(lowerCaseTerm) ||
-        application.carModel.toLowerCase().includes(lowerCaseTerm) ||
-        application.licenseNumber.toLowerCase().includes(lowerCaseTerm) ||
-        application.carColor.toLowerCase().includes(lowerCaseTerm)
+        application.carMake?.toLowerCase().includes(lowerCaseTerm) ||
+        application.carModel?.toLowerCase().includes(lowerCaseTerm) ||
+        application.licenseNumber?.toLowerCase().includes(lowerCaseTerm) ||
+        application.carColor?.toLowerCase().includes(lowerCaseTerm)
       )
     );
   };
 
-// drivers/table.tsx
-const getStatusDetails = (status: string) => {
-  console.log("Status:", status); // Keep for debugging
-  switch (status) {
+  const getStatusDetails = (status: string | undefined) => {
+    const statusValue = status || 'pending';
+
+    switch (statusValue) {
       case "approved":
-          return {
-              color: "status-approved",
-              icon: <CheckCircleIcon className="h-4 w-4" aria-hidden="true" />
-          };
+        return {
+          color: "status-approved",
+          icon: <CheckCircleIcon className="h-4 w-4" aria-hidden="true" />
+        };
       case "denied":
-      case "failed": // Keep 'failed' for backward compatibility
-          return {
-              color: "status-failed",
-              icon: <XCircleIcon className="h-4 w-4" aria-hidden="true" />
-          };
+      case "failed":
+        return {
+          color: "status-failed",
+          icon: <XCircleIcon className="h-4 w-4" aria-hidden="true" />
+        };
       case "pending":
-          return {
-              color: "status-pending",
-              icon: <ExclamationCircleIcon className="h-4 w-4" aria-hidden="true" />
-          };
       default:
-          return {
-              color: "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300",
-              icon: null
-          };
-  }
-};
+        return {
+          color: "status-pending",
+          icon: <ExclamationCircleIcon className="h-4 w-4" aria-hidden="true" />
+        };
+    }
+  };
 
   return (
     <div className="w-full">
-      {/* Header Section */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Driver Applications</h1>
-        <p className="text-gray-600 dark:text-gray-400">Manage and review driver applications</p>
+        <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-50 mb-3 tracking-tight">
+          Driver Applications
+        </h1>
+        <p className="text-lg text-slate-600 dark:text-slate-400">
+          Review and manage driver applications
+        </p>
       </div>
 
-      {/* Search Bar */}
       <div className="mb-6">
         <div className="relative max-w-md">
           <input
@@ -75,46 +73,47 @@ const getStatusDetails = (status: string) => {
             placeholder="Search by car make, model, license, or color..."
             value={searchTerm}
             onChange={(e) => handleSearch(e.target.value)}
-            className="modern-input pl-10"
+            className="input pl-10"
           />
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
         </div>
       </div>
 
-      {/* Table Container */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <div className="table-container">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-900">
+          <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+            <thead className="table-header">
               <tr>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                <th scope="col" className="table-header-cell">
                   Driver Details
                 </th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                <th scope="col" className="table-header-cell">
                   License Number
                 </th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                <th scope="col" className="table-header-cell">
                   Vehicle Info
                 </th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                <th scope="col" className="table-header-cell">
                   Status
                 </th>
-                <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                <th scope="col" className="table-header-cell text-center">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
               {filteredApplications.map((application) => {
-                const { color, icon } = getStatusDetails(application.driverVerificationStatus);
+                const status = application.driverVerificationStatus || 'pending';
+                const { color, icon } = getStatusDetails(status);
+
                 return (
-                  <tr key={application.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <td className="px-6 py-4">
+                  <tr key={application.id} className="table-row">
+                    <td className="table-cell">
                       <div className="flex items-center">
-                        <div className="h-12 w-12 flex-shrink-0 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700">
+                        <div className="h-12 w-12 flex-shrink-0 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-700">
                           <Image
                             src={application.avatar || "/placeholder.png"}
-                            alt={`${application.carMake} ${application.carModel}`}
+                            alt={`${application.carMake || ''} ${application.carModel || ''}`}
                             width={48}
                             height={48}
                             className="h-12 w-12 object-cover"
@@ -124,32 +123,40 @@ const getStatusDetails = (status: string) => {
                           />
                         </div>
                         <div className="ml-4">
-                          <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                            {application.carMake} {application.carModel}
+                          <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                            {application.carMake || 'Unknown'} {application.carModel || ''}
                           </p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">ID: {application.driverId}</p>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                            ID: {application.driverId || 'N/A'}
+                          </p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm text-gray-900 dark:text-gray-300">{application.licenseNumber}</p>
+                    <td className="table-cell">
+                      <p className="text-sm text-slate-900 dark:text-slate-100">
+                        {application.licenseNumber || 'N/A'}
+                      </p>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="table-cell">
                       <div>
-                        <p className="text-sm text-gray-900 dark:text-gray-300">{application.seats} seats</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{application.carColor}</p>
+                        <p className="text-sm text-slate-900 dark:text-slate-100">
+                          {application.seats || 0} seats
+                        </p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                          {application.carColor || 'N/A'}
+                        </p>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="table-cell">
                       <span className={`status-badge ${color}`}>
                         {icon}
-                        <span>{application.driverVerificationStatus.charAt(0).toUpperCase() + application.driverVerificationStatus.slice(1)}</span>
+                        <span>{status.charAt(0).toUpperCase() + status.slice(1)}</span>
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="table-cell text-center">
                       <button
                         onClick={() => onSelect(application)}
-                        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm transition-colors"
+                        className="btn-ghost btn-sm"
                       >
                         View Details
                       </button>
@@ -159,10 +166,13 @@ const getStatusDetails = (status: string) => {
               })}
             </tbody>
           </table>
-          
+
           {filteredApplications.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-500 dark:text-gray-400">No applications found matching your search.</p>
+            <div className="empty-state">
+              <div className="empty-state-title">No applications found</div>
+              <div className="empty-state-description">
+                {searchTerm ? 'Try adjusting your search criteria' : 'No driver applications available'}
+              </div>
             </div>
           )}
         </div>

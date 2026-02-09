@@ -24,28 +24,48 @@ export default function ProcessingTimeChart({ applications = [] }: ProcessingTim
   if (!applications || applications.length === 0) {
     return (
       <div className="chart-container h-full flex flex-col items-center justify-center">
-        <h2 className="lusitana text-xl font-bold text-gray-900 dark:text-white mb-6">
+        <h2 className="lusitana text-xl font-bold text-slate-900 dark:text-white mb-6">
           Average Processing Time
         </h2>
-        <p className="text-gray-600 dark:text-gray-300">No data available</p>
+        <p className="text-slate-600 dark:text-slate-300">No data available</p>
       </div>
     );
   }
 
   const sortedApplications = applications.sort((a, b) => {
-    return (a.createdAt?._seconds || 0) - (b.createdAt?._seconds || 0);
+    const aTime = typeof a.createdAt === 'number' ? a.createdAt : (a.createdAt?._seconds || 0);
+    const bTime = typeof b.createdAt === 'number' ? b.createdAt : (b.createdAt?._seconds || 0);
+    return aTime - bTime;
   });
 
   const processingTimes = sortedApplications.map((app) => {
     if (!app.createdAt || !app.updatedAt) return 0;
-    const submittedAt = new Date(app.createdAt._seconds * 1000).getTime();
-    const processedAt = new Date(app.updatedAt._seconds * 1000).getTime();
+
+    const submittedTime = typeof app.createdAt === 'number'
+      ? app.createdAt
+      : app.createdAt._seconds
+      ? app.createdAt._seconds * 1000
+      : 0;
+
+    const processedTime = typeof app.updatedAt === 'number'
+      ? app.updatedAt
+      : app.updatedAt._seconds
+      ? app.updatedAt._seconds * 1000
+      : 0;
+
+    const submittedAt = new Date(submittedTime).getTime();
+    const processedAt = new Date(processedTime).getTime();
     return Math.max(0, (processedAt - submittedAt) / (1000 * 60 * 60 * 24));
   });
 
   const labels = sortedApplications.map((app) => {
     if (!app.createdAt) return '';
-    return new Date(app.createdAt._seconds * 1000).toLocaleDateString('en-US', {
+    const timestamp = typeof app.createdAt === 'number'
+      ? app.createdAt
+      : app.createdAt._seconds
+      ? app.createdAt._seconds * 1000
+      : Date.now();
+    return new Date(timestamp).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
     });
@@ -127,7 +147,7 @@ export default function ProcessingTimeChart({ applications = [] }: ProcessingTim
 
   return (
     <div className="chart-container h-full flex flex-col">
-      <h2 className="lusitana text-xl font-bold text-gray-900 dark:text-white mb-6">
+      <h2 className="lusitana text-xl font-bold text-slate-900 dark:text-white mb-6">
         Average Processing Time
       </h2>
       <div className="flex-1" style={{ minHeight: '300px' }}>

@@ -11,12 +11,12 @@ export default function Page() {
 
   const fetchDriverApplications = async () => {
     try {
-      const response = await fetch("https://banturide-api-production.up.railway.app/admin/get-driver-applications");
+      const response = await fetch("/api/dashboard/applications");
       if (!response.ok) {
         throw new Error("Failed to fetch driver applications");
       }
       const data = await response.json();
-      setApplications(data.applications); // Ensure applications are set
+      setApplications(data.applications || []); // Ensure applications are set
     } catch (error) {
       console.error(error);
       setApplications([]); // Set to empty array on error

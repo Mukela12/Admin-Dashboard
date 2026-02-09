@@ -22,7 +22,7 @@ export default function LoginPage() {
           </div>
         </div>
         <LoginForm />
-        <p className="mt-6 text-center text-sm text-gray-300">
+        <p className="mt-6 text-center text-sm text-slate-300">
           © 2025 BantuRide. All rights reserved.
         </p>
       </div>

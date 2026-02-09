@@ -1,8 +1,7 @@
-import CardWrapper from '@/app/dashboard-ui/cards';
+import { Suspense } from 'react';
+import RealtimeStats from '@/app/dashboard-ui/realtime-stats';
 import RevenueChart from '@/app/dashboard-ui/applications-chart';
 import LatestInvoices from '@/app/dashboard-ui/latest-complaints';
-import { lusitana } from '@/app/fonts';
-import { Suspense } from 'react';
 import {
   RevenueChartSkeleton,
   LatestInvoicesSkeleton,
@@ -14,19 +13,11 @@ import ProcessingTimeChart from '@/app/dashboard-ui/ProcessingTimeChart';
 
 export default async function Page() {
   return (
-    <main className="relative">
-      {/* Page Header */}
-      <div className="mb-8">
-        <h1 className={`${lusitana.className} text-3xl font-bold text-gray-900 dark:text-white mb-2`}>
-          Dashboard Overview
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">Welcome back to BantuRide Admin</p>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+    <main className="space-y-8">
+      {/* Real-time Stats Cards */}
+      <div>
         <Suspense fallback={<CardsSkeleton />}>
-          <CardWrapper />
+          <RealtimeStats />
         </Suspense>
       </div>
 
@@ -54,13 +45,13 @@ export default async function Page() {
             <ApprovalRatioChart />
           </Suspense>
         </div>
-        
+
         <div className="h-[400px]">
           <Suspense fallback={<RevenueChartSkeleton />}>
             <WeeklyComplaintsChart />
           </Suspense>
         </div>
-        
+
         <div className="h-[400px]">
           <Suspense fallback={<RevenueChartSkeleton />}>
             <ProcessingTimeChart />

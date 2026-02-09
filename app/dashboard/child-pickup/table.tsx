@@ -37,15 +37,15 @@ export default function ChildPickupTable({ applications, onSelect }: ChildPickup
       case "denied":
         return { color: "status-failed", icon: <XCircleIcon className="h-4 w-4" /> };
       default:
-        return { color: "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300", icon: null };
+        return { color: "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300", icon: null };
     }
   };
 
   return (
     <div className="w-full">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Child Pickup Applications</h1>
-        <p className="text-gray-600 dark:text-gray-400">Manage and review child pickup applications</p>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Child Pickup Applications</h1>
+        <p className="text-slate-600 dark:text-slate-400">Manage and review child pickup applications</p>
       </div>
       <div className="mb-6">
         <div className="relative max-w-md">
@@ -56,34 +56,35 @@ export default function ChildPickupTable({ applications, onSelect }: ChildPickup
             onChange={(e) => handleSearch(e.target.value)}
             className="modern-input pl-10"
           />
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
         </div>
       </div>
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-900">
+          <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+            <thead className="bg-slate-50 dark:bg-slate-900">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Driver Details</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Driver Details</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-center text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
               {filteredApplications.map((app) => {
-                const { color, icon } = getStatusDetails(app.childPickUpStatus);
+                const status = app.childPickUpStatus || app.status || 'pending';
+                const { color, icon } = getStatusDetails(status);
                 return (
-                  <tr key={app.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  <tr key={app.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                     <td className="px-6 py-4">
                       <div className="ml-4">
-                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{app.fullName}</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">ID: {app.driverId}</p>
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{app.fullName || 'N/A'}</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">ID: {app.driverId || 'N/A'}</p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`status-badge ${color}`}>
                         {icon}
-                        <span>{app.childPickUpStatus.charAt(0).toUpperCase() + app.childPickUpStatus.slice(1)}</span>
+                        <span>{status.charAt(0).toUpperCase() + status.slice(1)}</span>
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center">
@@ -101,7 +102,7 @@ export default function ChildPickupTable({ applications, onSelect }: ChildPickup
           </table>
           {filteredApplications.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500 dark:text-gray-400">No applications found matching your search.</p>
+              <p className="text-slate-500 dark:text-slate-400">No applications found matching your search.</p>
             </div>
           )}
         </div>

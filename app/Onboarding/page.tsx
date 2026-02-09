@@ -6,9 +6,9 @@ import Image from 'next/image';
 
 export default function Page() {
   return (
-    <main className="h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white overflow-hidden">
-      {/* Background decoration - same as login page */}
-      <div className="absolute inset-0 overflow-hidden">
+    <main className="flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white">
+      {/* Background decoration */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -left-40 w-80 h-80 bg-purple-600 rounded-full mix-blend-multiply filter blur-xl opacity-30"></div>
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-600 rounded-full mix-blend-multiply filter blur-xl opacity-30"></div>
         <div className="absolute top-40 left-40 w-80 h-80 bg-indigo-600 rounded-full mix-blend-multiply filter blur-xl opacity-30"></div>
@@ -22,10 +22,10 @@ export default function Page() {
           </div>
         </div>
         <div className="hidden md:flex items-center gap-8">
-          <Link href="/about" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+          <Link href="/about" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
             About
           </Link>
-          <Link href="/support" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+          <Link href="/support" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
             Support
           </Link>
           <Link
@@ -37,13 +37,12 @@ export default function Page() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <div className="relative z-10 h-[calc(100vh-88px)]">
-        {/* Content Grid */}
-        <div className="h-full mx-auto max-w-7xl px-8">
-          <div className="h-full grid lg:grid-cols-2 gap-12 items-center">
+      {/* Hero Section - grows to fill remaining space */}
+      <div className="relative z-10 flex-1 flex flex-col">
+        <div className="flex-1 mx-auto max-w-7xl px-8 w-full">
+          <div className="h-full grid lg:grid-cols-2 gap-12 items-center py-12">
             {/* Left Content */}
-            <div className="py-8 lg:py-0">
+            <div>
               <div className="mb-6">
                 <span className="inline-flex items-center rounded-lg bg-white/10 backdrop-blur-sm px-3 py-1 text-sm font-medium text-blue-300 ring-1 ring-white/20">
                   BantuRide Management
@@ -52,11 +51,11 @@ export default function Page() {
               <h1 className={`${lusitana.className} text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl text-white`}>
                 BantuRide Admin Dashboard
               </h1>
-              <p className="mt-6 text-lg leading-8 text-gray-300 max-w-2xl">
-                Manage your ride-hailing operations efficiently. Track key metrics, approve driver applications, 
+              <p className="mt-6 text-lg leading-8 text-slate-300 max-w-2xl">
+                Manage your ride-hailing operations efficiently. Track key metrics, approve driver applications,
                 and handle customer complaints all in one centralized platform.
               </p>
-              
+
               {/* CTA Buttons */}
               <div className="mt-8 flex items-center gap-4">
                 <Link
@@ -74,19 +73,18 @@ export default function Page() {
                 </Link>
               </div>
 
-
               {/* Live Stats Preview */}
               <div className="mt-8 flex items-center gap-8 text-sm">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-gray-300">Live System Status</span>
+                  <span className="text-slate-300">Live System Status</span>
                 </div>
               </div>
             </div>
-            
+
             {/* Right Image */}
             <div className="hidden lg:block">
-              <div className="relative h-full flex items-center justify-center">
+              <div className="relative flex items-center justify-center">
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur-2xl opacity-20"></div>
                   <Image
@@ -105,8 +103,8 @@ export default function Page() {
                         </svg>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-600">New Driver Application</p>
-                        <p className="text-sm font-semibold text-gray-900">Daliso Phiri - Approved</p>
+                        <p className="text-xs text-slate-600">New Driver Application</p>
+                        <p className="text-sm font-semibold text-slate-900">Daliso Phiri - Approved</p>
                       </div>
                     </div>
                   </div>
@@ -118,8 +116,8 @@ export default function Page() {
                         </svg>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-600">New Complaint</p>
-                        <p className="text-sm font-semibold text-gray-900">Ride #4821 - Pending</p>
+                        <p className="text-xs text-slate-600">New Complaint</p>
+                        <p className="text-sm font-semibold text-slate-900">Ride #4821 - Pending</p>
                       </div>
                     </div>
                   </div>
@@ -129,18 +127,18 @@ export default function Page() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="absolute bottom-0 left-0 right-0 border-t border-white/10 bg-gray-900/50 backdrop-blur-sm">
+        {/* Bottom Bar - part of flex flow, always at bottom */}
+        <div className="relative z-10 border-t border-white/10 bg-slate-900/50 backdrop-blur-sm">
           <div className="mx-auto max-w-7xl px-8 py-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-300">
-                © 2025 BantuRide. E-hailing Management Platform.
+              <p className="text-sm text-slate-300">
+                &copy; 2025 BantuRide. E-hailing Management Platform.
               </p>
               <div className="flex items-center gap-6">
-                <Link href="/privacy" className="text-sm text-gray-300 hover:text-white transition-colors">
+                <Link href="/privacy" className="text-sm text-slate-300 hover:text-white transition-colors">
                   Privacy Policy
                 </Link>
-                <Link href="/terms" className="text-sm text-gray-300 hover:text-white transition-colors">
+                <Link href="/terms" className="text-sm text-slate-300 hover:text-white transition-colors">
                   Terms of Service
                 </Link>
               </div>

@@ -96,19 +96,22 @@ export interface Reference {
 
 export interface ChildPickupApplication {
   id: string;
-  childPickUpStatus: 'pending' | 'approved' | 'denied';
+  childPickUpStatus: string;
+  status?: string;
   driverId: string;
   fullName: string;
   emergencyContactDetails: {
     name: string;
     phoneNumber: string;
     relationship: string;
-  };
+  } | null;
   policeClearanceDocument: string;
   references: Array<{
     name: string;
     phoneNumber: string;
     relationship: string;
   }>;
+  safetyPolicyAccepted?: boolean;
+  rejectionReason?: string;
   updatedAt: number;
 }

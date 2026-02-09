@@ -15,12 +15,12 @@ const DriverPage = () => {
 
   const fetchApplicationDetails = async () => {
     try {
-      const response = await fetch(`https://banturide-api-production.up.railway.app/admin/get-driver-application/${id}`);
+      const response = await fetch(`/api/dashboard/applications/${id}`);
       if (!response.ok) {
         throw new Error("Failed to fetch application details");
       }
-      const data: Application = await response.json();
-      setApplication(data);
+      const data = await response.json();
+      setApplication(data.application);
     } catch (error) {
       console.error(error);
       setError("Failed to load driver details.");

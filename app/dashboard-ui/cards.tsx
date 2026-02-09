@@ -4,15 +4,11 @@ import { Application, Complaint } from '@/app/lib/types';
 
 async function fetchDriverApplications(): Promise<Application[]> {
   try {
-    const response = await fetch('https://banturide-api-production.up.railway.app/admin/get-driver-applications');
+    const response = await fetch('http://localhost:3000/api/dashboard/applications', {
+      cache: 'no-store'
+    });
     const data = await response.json();
-
-    if (data.success && data.applications) {
-      return data.applications;
-    } else {
-      console.warn('No applications found:', data.message || 'Unknown error');
-      return [];
-    }
+    return data.applications || [];
   } catch (error) {
     console.error('Error fetching applications:', error);
     return [];
@@ -21,15 +17,11 @@ async function fetchDriverApplications(): Promise<Application[]> {
 
 async function fetchComplaints(): Promise<Complaint[]> {
   try {
-    const response = await fetch('https://banturide-api-production.up.railway.app/admin/get-complaints');
+    const response = await fetch('http://localhost:3000/api/complaints', {
+      cache: 'no-store'
+    });
     const data = await response.json();
-
-    if (data.success && data.complaints) {
-      return data.complaints;
-    } else {
-      console.warn('No complaints found:', data.message || 'Unknown error');
-      return [];
-    }
+    return data.complaints || [];
   } catch (error) {
     console.error('Error fetching complaints:', error);
     return [];
@@ -96,7 +88,7 @@ export function Card({
   const Icon = iconMap[type];
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+    <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-800 p-6 shadow-lg border border-slate-100 dark:border-slate-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       {/* Background Decoration */}
       <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-5 dark:opacity-10`} />
       
@@ -107,8 +99,8 @@ export function Card({
       
       {/* Content */}
       <div>
-        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
-        <p className={`${lusitana.className} mt-2 text-3xl font-bold text-gray-900 dark:text-white`}>
+        <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{title}</p>
+        <p className={`${lusitana.className} mt-2 text-3xl font-bold text-slate-900 dark:text-white`}>
           {value}
         </p>
       </div>
