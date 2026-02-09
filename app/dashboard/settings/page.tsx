@@ -126,7 +126,7 @@ export default function SettingsPage() {
             <p className="text-[11px] text-slate-400 mt-1">Platform commission on each completed ride</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Minimum Fare (ZMW)</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Minimum Fare (ngwee)</label>
             <input
               type="number"
               value={config.minFare}
@@ -134,10 +134,10 @@ export default function SettingsPage() {
               className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               min={0}
             />
-            <p className="text-[11px] text-slate-400 mt-1">K{config.minFare.toFixed(2)} minimum charge</p>
+            <p className="text-[11px] text-slate-400 mt-1">= K{(config.minFare / 100).toFixed(2)} minimum charge</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Base Fare (ZMW)</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Base Fare (ngwee)</label>
             <input
               type="number"
               value={config.baseFare}
@@ -145,10 +145,10 @@ export default function SettingsPage() {
               className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               min={0}
             />
-            <p className="text-[11px] text-slate-400 mt-1">K{config.baseFare.toFixed(2)} starting fee</p>
+            <p className="text-[11px] text-slate-400 mt-1">= K{(config.baseFare / 100).toFixed(2)} starting fee</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Per KM Rate (ZMW)</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Per KM Rate (ngwee)</label>
             <input
               type="number"
               value={config.perKmRate}
@@ -156,10 +156,10 @@ export default function SettingsPage() {
               className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               min={0}
             />
-            <p className="text-[11px] text-slate-400 mt-1">K{config.perKmRate.toFixed(2)} per kilometer</p>
+            <p className="text-[11px] text-slate-400 mt-1">= K{(config.perKmRate / 100).toFixed(2)} per kilometer</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Per Minute Rate (ZMW)</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Per Minute Rate (ngwee)</label>
             <input
               type="number"
               value={config.perMinRate}
@@ -167,10 +167,10 @@ export default function SettingsPage() {
               className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               min={0}
             />
-            <p className="text-[11px] text-slate-400 mt-1">K{config.perMinRate.toFixed(2)} per minute</p>
+            <p className="text-[11px] text-slate-400 mt-1">= K{(config.perMinRate / 100).toFixed(2)} per minute</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Cancellation Fee (ZMW)</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Cancellation Fee (ngwee)</label>
             <input
               type="number"
               value={config.cancellationFee}
@@ -178,7 +178,7 @@ export default function SettingsPage() {
               className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               min={0}
             />
-            <p className="text-[11px] text-slate-400 mt-1">K{config.cancellationFee.toFixed(2)} charged on cancel</p>
+            <p className="text-[11px] text-slate-400 mt-1">= K{(config.cancellationFee / 100).toFixed(2)} charged on cancel</p>
           </div>
         </div>
       </div>
