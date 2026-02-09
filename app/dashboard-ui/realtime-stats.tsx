@@ -101,7 +101,7 @@ export default function RealtimeStats() {
     },
     {
       title: 'Revenue',
-      value: `K${(stats.totalRevenue / 100).toFixed(0)}`,
+      value: `K${stats.totalRevenue.toFixed(0)}`,
       subtitle: `${stats.completedTrips} completed trips`,
       icon: CurrencyDollarIcon,
       iconBg: 'bg-gradient-to-br from-amber-500 to-amber-600',

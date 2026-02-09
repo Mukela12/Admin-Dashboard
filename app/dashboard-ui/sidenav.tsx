@@ -18,7 +18,7 @@ export default function SideNav() {
     return (
         <div className="flex h-full flex-col bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
             <div className="flex h-32 items-center justify-center p-4 md:h-40 border-b border-slate-200 dark:border-slate-700">
-                <Link href="/" className="flex items-center justify-center">
+                <Link href="/dashboard" className="flex items-center justify-center">
                     <div className="w-40 bg-slate-50 dark:bg-slate-900 rounded-xl p-4 transition-colors">
                         <AcmeLogo />
                     </div>

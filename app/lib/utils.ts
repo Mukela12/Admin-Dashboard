@@ -4,10 +4,7 @@ import { Revenue } from './types';
 
 // Format currency in Zambian Kwacha
 export const formatCurrency = (amount: number) => {
-  return (amount / 100).toLocaleString('en-ZM', {
-    style: 'currency',
-    currency: 'ZMW',
-  });
+  return `K${amount.toFixed(2)}`;
 };
 
 // Format date to a readable local format

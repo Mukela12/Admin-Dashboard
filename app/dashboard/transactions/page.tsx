@@ -89,7 +89,7 @@ export default function TransactionsPage() {
 
   const statCards = [
     { label: 'Total Transactions', value: filteredTransactions.length, icon: ArrowPathIcon, color: 'from-slate-500 to-slate-600' },
-    { label: 'Total Amount', value: `K${(totalAmount / 100).toFixed(2)}`, icon: CurrencyDollarIcon, color: 'from-emerald-500 to-emerald-600' },
+    { label: 'Total Amount', value: `K${totalAmount.toFixed(2)}`, icon: CurrencyDollarIcon, color: 'from-emerald-500 to-emerald-600' },
     { label: 'Total Float Points', value: totalFloat, icon: BanknotesIcon, color: 'from-blue-500 to-blue-600' },
   ];
 
@@ -215,7 +215,7 @@ export default function TransactionsPage() {
                       {txn.transactionId || txn.orderNumber || '-'}
                     </td>
                     <td className="px-4 py-3.5 text-sm font-semibold text-slate-900 dark:text-slate-100 text-right">
-                      K{((txn.amount || 0) / 100).toFixed(2)}
+                      K{(txn.amount || 0).toFixed(2)}
                     </td>
                     <td className="px-4 py-3.5 text-sm text-slate-700 dark:text-slate-300 text-right">
                       {txn.floatPoints || '-'}

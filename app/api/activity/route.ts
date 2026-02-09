@@ -38,7 +38,7 @@ export async function GET() {
         id: doc.id,
         type: 'ride' as const,
         title: `${data.bookingType || 'Ride'} - ${data.passengerInfo?.fullName || 'Unknown'}`,
-        description: `${data.status || 'pending'} - K${((data.price || 0) / 100).toFixed(0)}`,
+        description: `${data.status || 'pending'} - K${(data.price || 0).toFixed(0)}`,
         status: data.status || 'pending',
         timestamp: ts,
         href: '/dashboard/trips',
@@ -53,7 +53,7 @@ export async function GET() {
       return {
         id: doc.id,
         type: 'transaction' as const,
-        title: `${data.type || 'Transaction'} - K${((data.amount || 0) / 100).toFixed(0)}`,
+        title: `${data.type || 'Transaction'} - K${(data.amount || 0).toFixed(0)}`,
         description: data.driverName || data.description || 'Float transaction',
         status: data.status || 'completed',
         timestamp: ts,

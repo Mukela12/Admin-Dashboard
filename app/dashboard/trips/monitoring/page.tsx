@@ -223,7 +223,7 @@ export default function RideMonitoringPage() {
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                      {ride.confirmedDriver?.fullName || 'No driver'} &middot; K{((ride.price || 0) / 100).toFixed(0)}
+                      {ride.confirmedDriver?.fullName || 'No driver'} &middot; K{(ride.price || 0).toFixed(0)}
                     </p>
                     <div className="flex items-center gap-1 mt-1">
                       {ride.driverLocation ? (
@@ -326,7 +326,7 @@ export default function RideMonitoringPage() {
 
                 <div className="flex items-center gap-4 mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 text-xs">
                   <span className="font-semibold text-slate-900 dark:text-slate-100">
-                    K{((selectedRide.price || 0) / 100).toFixed(2)}
+                    K{(selectedRide.price || 0).toFixed(2)}
                   </span>
                   <span className="text-slate-500 dark:text-slate-400">{selectedRide.distance || '-'}</span>
                   <span className="text-slate-500 dark:text-slate-400">{selectedRide.duration || '-'}</span>

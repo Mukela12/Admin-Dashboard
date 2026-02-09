@@ -147,7 +147,7 @@ export default function TripsPage() {
     { label: 'Active', value: stats.current, icon: ClockIcon, color: 'from-blue-500 to-blue-600' },
     { label: 'Completed', value: stats.completed, icon: CheckCircleIcon, color: 'from-emerald-500 to-emerald-600' },
     { label: 'Cancelled', value: stats.cancelled, icon: XCircleIcon, color: 'from-red-500 to-red-600' },
-    { label: 'Revenue', value: `K${(stats.totalRevenue / 100).toFixed(2)}`, icon: CurrencyDollarIcon, color: 'from-amber-500 to-amber-600' },
+    { label: 'Revenue', value: `K${stats.totalRevenue.toFixed(2)}`, icon: CurrencyDollarIcon, color: 'from-amber-500 to-amber-600' },
   ];
 
   if (loading) {
@@ -285,7 +285,7 @@ export default function TripsPage() {
                           </td>
                         )}
                         <td className="px-4 py-3.5 text-sm font-semibold text-slate-900 dark:text-slate-100">
-                          K{((booking.price || 0) / 100).toFixed(2)}
+                          K{(booking.price || 0).toFixed(2)}
                         </td>
                         <td className="px-4 py-3.5">
                           <StatusBadge status={booking.status || 'pending'} />
@@ -407,7 +407,7 @@ export default function TripsPage() {
                 <div className="bg-slate-50 dark:bg-slate-700/30 rounded-lg p-3 text-center">
                   <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase">Price</p>
                   <p className="text-lg font-bold text-slate-900 dark:text-slate-50 mt-0.5">
-                    K{((selectedBooking.price || 0) / 100).toFixed(2)}
+                    K{(selectedBooking.price || 0).toFixed(2)}
                   </p>
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-700/30 rounded-lg p-3 text-center">
