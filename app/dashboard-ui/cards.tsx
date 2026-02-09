@@ -1,14 +1,12 @@
 import { BanknotesIcon, ClockIcon, UserGroupIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { lusitana } from '@/app/fonts';
 import { Application, Complaint } from '@/app/lib/types';
+import { collections } from '@/app/lib/firebase/collections';
 
 async function fetchDriverApplications(): Promise<Application[]> {
   try {
-    const response = await fetch('http://localhost:3000/api/dashboard/applications', {
-      cache: 'no-store'
-    });
-    const data = await response.json();
-    return data.applications || [];
+    const snapshot = await collections.driverApplications.orderBy('createdAt', 'desc').get();
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Application));
   } catch (error) {
     console.error('Error fetching applications:', error);
     return [];
@@ -17,11 +15,8 @@ async function fetchDriverApplications(): Promise<Application[]> {
 
 async function fetchComplaints(): Promise<Complaint[]> {
   try {
-    const response = await fetch('http://localhost:3000/api/complaints', {
-      cache: 'no-store'
-    });
-    const data = await response.json();
-    return data.complaints || [];
+    const snapshot = await collections.complaints.orderBy('createdAt', 'desc').get();
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Complaint));
   } catch (error) {
     console.error('Error fetching complaints:', error);
     return [];

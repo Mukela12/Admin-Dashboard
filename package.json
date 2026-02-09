@@ -19,7 +19,7 @@
     "firebase-admin": "^13.6.1",
     "heroicons": "^2.1.5",
     "leaflet": "^1.9.4",
-    "next": "15.0.1",
+    "next": "^15.5.12",
     "punycode": "^2.3.1",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.2.0",

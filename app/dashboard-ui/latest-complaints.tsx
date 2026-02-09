@@ -1,18 +1,12 @@
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { lusitana } from '@/app/fonts';
 import { Complaint } from '@/app/lib/types';
+import { collections } from '@/app/lib/firebase/collections';
 
 async function fetchLatestComplaints(): Promise<Complaint[]> {
   try {
-    const response = await fetch('http://localhost:3000/api/complaints', {
-      cache: 'no-store'
-    });
-    const data = await response.json();
-
-    if (data.complaints) {
-      return data.complaints.slice(0, 6); // Get latest 6 complaints
-    }
-    return [];
+    const snapshot = await collections.complaints.orderBy('createdAt', 'desc').limit(6).get();
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Complaint));
   } catch (error) {
     console.error('Error fetching complaints:', error);
     return [];

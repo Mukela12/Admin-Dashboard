@@ -2,6 +2,7 @@
 
 import { lusitana } from '@/app/fonts';
 import { Complaint } from '@/app/lib/types';
+import { collections } from '@/app/lib/firebase/collections';
 
 // Helper function to get ISO week number
 function getISOWeekNumber(date: Date): number {
@@ -17,26 +18,26 @@ function getISOWeekNumber(date: Date): number {
   );
 }
 
+function emptyWeeks(): Record<string, number> {
+  const weeklyComplaints: Record<string, number> = {};
+  const now = new Date();
+  for (let i = 0; i < 4; i++) {
+    const date = new Date(now);
+    date.setDate(date.getDate() - (i * 7));
+    const week = getISOWeekNumber(date);
+    const year = date.getFullYear();
+    const key = `${year}-W${week}`;
+    weeklyComplaints[key] = 0;
+  }
+  return weeklyComplaints;
+}
+
 async function fetchWeeklyComplaints(): Promise<Record<string, number>> {
   try {
-    const response = await fetch('http://localhost:3000/api/complaints', {
-      cache: 'no-store'
-    });
-    const data = await response.json();
-    const complaints = Array.isArray(data.complaints) ? data.complaints : [];
+    const snapshot = await collections.complaints.orderBy('createdAt', 'desc').get();
+    const complaints = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Complaint));
 
-    // Get the last 4 weeks of data
-    const weeklyComplaints: Record<string, number> = {};
-    const now = new Date();
-
-    for (let i = 0; i < 4; i++) {
-      const date = new Date(now);
-      date.setDate(date.getDate() - (i * 7));
-      const week = getISOWeekNumber(date);
-      const year = date.getFullYear();
-      const key = `${year}-W${week}`;
-      weeklyComplaints[key] = 0;
-    }
+    const weeklyComplaints = emptyWeeks();
 
     complaints.forEach((complaint: Complaint) => {
       if (complaint.createdAt) {
@@ -61,18 +62,7 @@ async function fetchWeeklyComplaints(): Promise<Record<string, number>> {
     return weeklyComplaints;
   } catch (error) {
     console.error('Error fetching weekly complaints:', error);
-    // Return empty weeks if error
-    const weeklyComplaints: Record<string, number> = {};
-    const now = new Date();
-    for (let i = 0; i < 4; i++) {
-      const date = new Date(now);
-      date.setDate(date.getDate() - (i * 7));
-      const week = getISOWeekNumber(date);
-      const year = date.getFullYear();
-      const key = `${year}-W${week}`;
-      weeklyComplaints[key] = 0;
-    }
-    return weeklyComplaints;
+    return emptyWeeks();
   }
 }
 

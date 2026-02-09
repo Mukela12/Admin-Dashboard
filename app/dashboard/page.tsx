@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Suspense } from 'react';
 import RealtimeStats from '@/app/dashboard-ui/realtime-stats';
 import RevenueChart from '@/app/dashboard-ui/applications-chart';
