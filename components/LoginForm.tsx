@@ -27,7 +27,7 @@ export default function LoginForm() {
             const data = await response.json();
 
             if (data.success) {
-                localStorage.setItem('token', data.token);
+                // Cookie is set by the server (HTTP-only), just redirect
                 window.location.href = '/dashboard';
             } else {
                 setErrorMessage(data.message || 'Invalid credentials');

@@ -10,9 +10,9 @@ import { useTheme } from '../styles/ThemeProvider';
 export default function SideNav() {
     const { theme, toggleTheme } = useTheme();
 
-    const handleSignOut = () => {
-        localStorage.removeItem('token');
-        window.location.href = '/';
+    const handleSignOut = async () => {
+        await fetch('/api/auth/logout', { method: 'POST' });
+        window.location.href = '/login';
     };
 
     return (
