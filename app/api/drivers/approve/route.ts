@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server';
 import { approveDriverApplication } from '@/app/lib/firebase/operations';
+import { sendDriverNotification } from '@/app/lib/firebase/notifications';
 
 export async function POST(request: Request) {
   try {
-    const { applicationId, driverId, bookingClass, deliveryClass } = await request.json();
+    const { applicationId, driverId, rideClasses, deliveryClasses } = await request.json();
 
-    await approveDriverApplication(applicationId, driverId, bookingClass, deliveryClass);
+    await approveDriverApplication(applicationId, driverId, rideClasses, deliveryClasses);
+
+    await sendDriverNotification(
+      driverId,
+      'Application Approved',
+      'Your driver application has been approved! You can now start accepting rides.'
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -11,4 +11,5 @@ export const collections = {
   payments: db.collection('payments'),
   floatTransactions: db.collection('float-transactions'),
   reviews: db.collection('reviews'),
+  config: db.collection('config'),
 };

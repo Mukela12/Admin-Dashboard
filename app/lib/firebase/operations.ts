@@ -1,24 +1,73 @@
 import { collections } from './collections';
+import { db } from './admin';
 
 export async function approveDriverApplication(
   applicationId: string,
   driverId: string,
-  bookingClass: string[],
-  deliveryClass: string[]
+  rideClasses: string[],
+  deliveryClasses: string[]
 ) {
+  // Read application to get identity/vehicle data for copying to driver doc
+  const appDoc = await collections.driverApplications.doc(applicationId).get();
+  const appData = appDoc.data() || {};
+
+  // Extract identity and vehicle info (handle both nested and flat formats)
+  const identity = appData.identity || {};
+  const vehicle = appData.vehicle || {};
+
+  const fullName = identity.fullName || appData.driverFullName || appData.fullName || '';
+  const avatar = identity.avatarUrl || appData.avatar || '';
+  const nrcNumber = identity.nrc || appData.nrc || '';
+  const licenseNumber = identity.licenseNumber || appData.licenseNumber || '';
+  const licenseExpiry = identity.licenseExpiry || appData.licenseExpiry || '';
+  const policeClearanceUrl = identity.policeClearanceUrl || appData.policeClearanceUrl || '';
+  const canDrive = appData.canDrive ?? appData.canDriver ?? false;
+  const canDeliver = appData.canDeliver ?? false;
+  const canAllDay = appData.canAllDay ?? false;
+
+  const vehicleInfo = {
+    make: vehicle.make || appData.carMake || '',
+    model: vehicle.model || appData.carModel || '',
+    color: vehicle.color || appData.carColor || '',
+    plateNumber: vehicle.plateNumber || appData.vehicleReg || '',
+    seats: vehicle.seats || appData.seats || '',
+    insuranceCertificateUrl: vehicle.insuranceCertificateUrl || appData.insuranceCertificate || '',
+    exteriorImageUrl: vehicle.exteriorImageUrl || appData.vehicleImage1 || '',
+    interiorImageUrl: vehicle.interiorImageUrl || appData.vehicleImage2 || '',
+    rideClasses,
+    deliveryClasses,
+  };
+
+  const batch = db.batch();
+
   // Update application status
-  await collections.driverApplications.doc(applicationId).update({
-    driverVerificationStatus: 'approved',
+  batch.update(collections.driverApplications.doc(applicationId), {
+    status: 'approved',
     updatedAt: Date.now(),
   });
 
-  // Update driver profile
-  await collections.drivers.doc(driverId).update({
-    'driverInfo.verificationStatus': 'approved',
-    'driverInfo.bookingClasses': bookingClass,
-    'driverInfo.deliveryClasses': deliveryClass,
+  // Update driver profile with promoted data (matching mobile AdminService)
+  batch.set(collections.drivers.doc(driverId), {
+    avatar,
+    fullName,
+    profileComplete: true,
+    driverInfo: {
+      verificationStatus: 'verified',
+      status: 'offline',
+      nrcNumber,
+      licenseNumber,
+      licenseExpiry,
+      policeClearanceUrl,
+      floatBalance: 0,
+      canDrive,
+      canDeliver,
+      canAllDay,
+    },
+    vehicleInfo,
     updatedAt: Date.now(),
-  });
+  }, { merge: true });
+
+  await batch.commit();
 }
 
 export async function denyDriverApplication(
@@ -26,16 +75,21 @@ export async function denyDriverApplication(
   driverId: string,
   reason: string
 ) {
-  await collections.driverApplications.doc(applicationId).update({
-    driverVerificationStatus: 'denied',
-    reason,
+  const batch = db.batch();
+
+  batch.update(collections.driverApplications.doc(applicationId), {
+    status: 'rejected',
+    rejectionReason: reason,
     updatedAt: Date.now(),
   });
 
-  await collections.drivers.doc(driverId).update({
-    'driverInfo.verificationStatus': 'denied',
+  batch.update(collections.drivers.doc(driverId), {
+    'driverInfo.verificationStatus': 'rejected',
+    'driverInfo.rejectionReason': reason,
     updatedAt: Date.now(),
   });
+
+  await batch.commit();
 }
 
 // Driver Management Operations

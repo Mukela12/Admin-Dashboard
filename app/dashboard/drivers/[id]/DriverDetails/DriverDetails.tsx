@@ -16,8 +16,8 @@ interface DriverDetailsProps {
 const DriverDetails: React.FC<DriverDetailsProps> = ({ application, onBack }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [bookingClass, setBookingClass] = useState<string[]>([]);
-  const [deliveryClass, setDeliveryClass] = useState<string[]>([]);
+  const [rideClasses, setRideClasses] = useState<string[]>([]);
+  const [deliveryClasses, setDeliveryClasses] = useState<string[]>([]);
   const [applicationData, setApplicationData] = useState<DriverApplication>(application);
   const [denialReason, setDenialReason] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -53,18 +53,18 @@ const DriverDetails: React.FC<DriverDetailsProps> = ({ application, onBack }) =>
 
   const handleCheckboxChange = (value: string, type: 'booking' | 'delivery') => {
     if (type === 'booking') {
-      setBookingClass((prev) =>
+      setRideClasses((prev) =>
         prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
       );
     } else {
-      setDeliveryClass((prev) =>
+      setDeliveryClasses((prev) =>
         prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
       );
     }
   };
 
   const handleApprove = async () => {
-    if (bookingClass.length === 0 && deliveryClass.length === 0) {
+    if (rideClasses.length === 0 && deliveryClasses.length === 0) {
       showToast('Please select at least one service class', 'error');
       return;
     }
@@ -86,8 +86,8 @@ const DriverDetails: React.FC<DriverDetailsProps> = ({ application, onBack }) =>
         body: JSON.stringify({
           applicationId: applicationData.id,
           driverId: applicationData.driverId,
-          bookingClass,
-          deliveryClass,
+          rideClasses,
+          deliveryClasses,
         }),
       });
 
@@ -168,6 +168,7 @@ const DriverDetails: React.FC<DriverDetailsProps> = ({ application, onBack }) =>
         return <span className="status-badge status-pending">Pending</span>;
       case 'failed':
       case 'denied':
+      case 'rejected':
         return <span className="status-badge status-failed">Denied</span>;
       default:
         return <span className="status-badge bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">Unknown</span>;
@@ -358,13 +359,13 @@ const DriverDetails: React.FC<DriverDetailsProps> = ({ application, onBack }) =>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Service Classes</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-4">Booking Classes</h4>
+                <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-4">Ride Classes</h4>
                 {["bantu-economy", "bantu-comfort", "bantu-executive"].map((option) => (
                   <label key={option} className="flex items-center gap-3 mb-3 cursor-pointer">
                     <input
                       type="checkbox"
                       value={option}
-                      checked={bookingClass.includes(option)}
+                      checked={rideClasses.includes(option)}
                       onChange={() => handleCheckboxChange(option, 'booking')}
                       className="w-4 h-4 text-blue-600 border-slate-300 dark:border-slate-600 rounded focus:ring-blue-500"
                     />
@@ -381,7 +382,7 @@ const DriverDetails: React.FC<DriverDetailsProps> = ({ application, onBack }) =>
                     <input
                       type="checkbox"
                       value={option}
-                      checked={deliveryClass.includes(option)}
+                      checked={deliveryClasses.includes(option)}
                       onChange={() => handleCheckboxChange(option, 'delivery')}
                       className="w-4 h-4 text-blue-600 border-slate-300 dark:border-slate-600 rounded focus:ring-blue-500"
                     />
