@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/app/lib/firebase/admin';
 
-const SETTINGS_DOC = 'platform-config';
-
 export async function GET() {
   try {
-    const doc = await db.collection('settings').doc(SETTINGS_DOC).get();
+    // Read from Enos's config/pricing collection
+    const doc = await db.collection('config').doc('pricing').get();
     return NextResponse.json({ config: doc.exists ? doc.data() : null });
   } catch (error) {
     console.error('Error fetching settings:', error);
@@ -21,10 +20,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Config required' }, { status: 400 });
     }
 
-    await db.collection('settings').doc(SETTINGS_DOC).set({
-      ...config,
-      updatedAt: Date.now(),
-    }, { merge: true });
+    // Write to config/pricing to stay in sync with mobile
+    await db.collection('config').doc('pricing').set(config);
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

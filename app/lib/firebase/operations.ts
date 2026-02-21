@@ -11,61 +11,38 @@ export async function approveDriverApplication(
   const appDoc = await collections.driverApplications.doc(applicationId).get();
   const appData = appDoc.data() || {};
 
-  // Extract identity and vehicle info (handle both nested and flat formats)
+  // Extract identity and vehicle info (matching mobile AdminService exactly)
   const identity = appData.identity || {};
   const vehicle = appData.vehicle || {};
 
-  const fullName = identity.fullName || appData.driverFullName || appData.fullName || '';
-  const avatar = identity.avatarUrl || appData.avatar || '';
-  const nrcNumber = identity.nrc || appData.nrc || '';
-  const licenseNumber = identity.licenseNumber || appData.licenseNumber || '';
-  const licenseExpiry = identity.licenseExpiry || appData.licenseExpiry || '';
-  const policeClearanceUrl = identity.policeClearanceUrl || appData.policeClearanceUrl || '';
-  const canDrive = appData.canDrive ?? appData.canDriver ?? false;
-  const canDeliver = appData.canDeliver ?? false;
-  const canAllDay = appData.canAllDay ?? false;
-
-  const vehicleInfo = {
-    make: vehicle.make || appData.carMake || '',
-    model: vehicle.model || appData.carModel || '',
-    color: vehicle.color || appData.carColor || '',
-    plateNumber: vehicle.plateNumber || appData.vehicleReg || '',
-    seats: vehicle.seats || appData.seats || '',
-    insuranceCertificateUrl: vehicle.insuranceCertificateUrl || appData.insuranceCertificate || '',
-    exteriorImageUrl: vehicle.exteriorImageUrl || appData.vehicleImage1 || '',
-    interiorImageUrl: vehicle.interiorImageUrl || appData.vehicleImage2 || '',
-    rideClasses,
-    deliveryClasses,
-  };
-
-  const batch = db.batch();
-
-  // Update application status
-  batch.update(collections.driverApplications.doc(applicationId), {
-    status: 'approved',
-    updatedAt: Date.now(),
-  });
-
-  // Update driver profile with promoted data (matching mobile AdminService)
-  batch.set(collections.drivers.doc(driverId), {
-    avatar,
-    fullName,
+  const promotedData = {
+    avatar: identity.avatarUrl || appData.avatar || '',
+    fullName: identity.fullName || appData.driverFullName || appData.fullName || '',
     profileComplete: true,
     driverInfo: {
       verificationStatus: 'verified',
       status: 'offline',
-      nrcNumber,
-      licenseNumber,
-      licenseExpiry,
-      policeClearanceUrl,
+      nrcNumber: identity.nrcNumber || appData.nrc || '',
+      licenseNumber: identity.licenseNumber || appData.licenseNumber || '',
+      licenseExpiry: identity.licenseExpiry || appData.licenseExpiry || '',
+      policeClearanceUrl: appData.policeClearanceUrl || '',
       floatBalance: 0,
-      canDrive,
-      canDeliver,
-      canAllDay,
+      canDrive: appData.canDrive ?? appData.canDriver ?? false,
+      canDeliver: appData.canDeliver ?? false,
+      canAllDay: appData.canAllDay ?? false,
     },
-    vehicleInfo,
+    vehicleInfo: {
+      ...vehicle,
+      rideClasses,
+      deliveryClasses,
+    },
     updatedAt: Date.now(),
-  }, { merge: true });
+  };
+
+  const batch = db.batch();
+
+  batch.set(collections.drivers.doc(driverId), promotedData, { merge: true });
+  batch.update(collections.driverApplications.doc(applicationId), { status: 'approved' });
 
   await batch.commit();
 }

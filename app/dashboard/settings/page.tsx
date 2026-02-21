@@ -4,43 +4,28 @@ import { useState, useEffect } from 'react';
 import { useToast } from '@/app/lib/hooks/useToast';
 import { useConfirm } from '@/app/lib/hooks/useConfirm';
 import {
-  CogIcon,
   CurrencyDollarIcon,
   TruckIcon,
-  ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
 
-interface PlatformConfig {
-  commissionRate: number;
-  minFare: number;
+interface ServiceConfig {
+  id: string;
+  title: string;
+  icon: string;
   baseFare: number;
-  perKmRate: number;
-  perMinRate: number;
-  cancellationFee: number;
-  bookingClasses: string[];
-  deliveryClasses: string[];
-  maxActiveRidesPerDriver: number;
-  driverApprovalRequired: boolean;
+  perKm: number;
+  perMinute: number;
+  mode: string[];
 }
 
-const defaultConfig: PlatformConfig = {
-  commissionRate: 15,
-  minFare: 1500,
-  baseFare: 500,
-  perKmRate: 300,
-  perMinRate: 50,
-  cancellationFee: 500,
-  bookingClasses: ['bantu-economy', 'bantu-premium', 'bantu-xl'],
-  deliveryClasses: ['bantu-regular', 'bantu-express'],
-  maxActiveRidesPerDriver: 1,
-  driverApprovalRequired: true,
-};
+interface PricingConfig {
+  services: ServiceConfig[];
+}
 
 export default function SettingsPage() {
-  const [config, setConfig] = useState<PlatformConfig>(defaultConfig);
+  const [config, setConfig] = useState<PricingConfig | null>(null);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [newBookingClass, setNewBookingClass] = useState('');
-  const [newDeliveryClass, setNewDeliveryClass] = useState('');
   const { showToast } = useToast();
   const { confirm } = useConfirm();
 
@@ -52,16 +37,29 @@ export default function SettingsPage() {
     try {
       const res = await fetch('/api/settings');
       const data = await res.json();
-      if (data.config) setConfig({ ...defaultConfig, ...data.config });
+      if (data.config) {
+        setConfig(data.config);
+      }
     } catch {
-      // Use defaults
+      showToast('Failed to load pricing config', 'error');
+    } finally {
+      setLoading(false);
     }
   }
 
+  function updateService(index: number, field: keyof ServiceConfig, value: number) {
+    if (!config) return;
+    const updated = [...config.services];
+    updated[index] = { ...updated[index], [field]: value };
+    setConfig({ ...config, services: updated });
+  }
+
   async function handleSave() {
+    if (!config) return;
+
     const confirmed = await confirm({
-      title: 'Save Settings',
-      message: 'Are you sure you want to update the platform settings? Changes will take effect immediately.',
+      title: 'Save Pricing',
+      message: 'Are you sure you want to update the pricing configuration? Changes will take effect immediately for all users.',
       confirmText: 'Save Changes',
       variant: 'success',
     });
@@ -75,229 +73,149 @@ export default function SettingsPage() {
         body: JSON.stringify({ config }),
       });
       if (res.ok) {
-        showToast('Settings saved successfully', 'success');
+        showToast('Pricing saved successfully', 'success');
       } else {
-        showToast('Failed to save settings', 'error');
+        showToast('Failed to save pricing', 'error');
       }
     } catch {
-      showToast('Failed to save settings', 'error');
+      showToast('Failed to save pricing', 'error');
     } finally {
       setSaving(false);
     }
   }
 
-  function addBookingClass() {
-    const cls = newBookingClass.trim().toLowerCase().replace(/\s+/g, '-');
-    if (cls && !config.bookingClasses.includes(cls)) {
-      setConfig({ ...config, bookingClasses: [...config.bookingClasses, cls] });
-      setNewBookingClass('');
-    }
+  if (loading) {
+    return (
+      <div className="max-w-4xl flex items-center justify-center py-20">
+        <div className="text-slate-500 dark:text-slate-400">Loading pricing configuration...</div>
+      </div>
+    );
   }
 
-  function addDeliveryClass() {
-    const cls = newDeliveryClass.trim().toLowerCase().replace(/\s+/g, '-');
-    if (cls && !config.deliveryClasses.includes(cls)) {
-      setConfig({ ...config, deliveryClasses: [...config.deliveryClasses, cls] });
-      setNewDeliveryClass('');
-    }
+  if (!config || !config.services) {
+    return (
+      <div className="max-w-4xl">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
+          <p className="text-slate-500 dark:text-slate-400">No pricing configuration found in Firebase. The mobile developer needs to set up the <code className="text-sm bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded">config/pricing</code> document first.</p>
+        </div>
+      </div>
+    );
   }
+
+  const rideServices = config.services.filter(s => s.mode.includes('ride') || s.mode.includes('all-day'));
+  const deliveryServices = config.services.filter(s => s.mode.includes('delivery'));
+
+  const inputClass = "w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none";
 
   return (
     <div className="max-w-4xl space-y-6">
-      {/* Pricing */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600">
-            <CurrencyDollarIcon className="h-4 w-4 text-white" />
-          </div>
-          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-50">Pricing Configuration</h2>
-        </div>
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Commission Rate (%)</label>
-            <input
-              type="number"
-              value={config.commissionRate}
-              onChange={(e) => setConfig({ ...config, commissionRate: Number(e.target.value) })}
-              className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              min={0}
-              max={100}
-            />
-            <p className="text-[11px] text-slate-400 mt-1">Platform commission on each completed ride</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Minimum Fare (ngwee)</label>
-            <input
-              type="number"
-              value={config.minFare}
-              onChange={(e) => setConfig({ ...config, minFare: Number(e.target.value) })}
-              className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              min={0}
-            />
-            <p className="text-[11px] text-slate-400 mt-1">= K{(config.minFare / 100).toFixed(2)} minimum charge</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Base Fare (ngwee)</label>
-            <input
-              type="number"
-              value={config.baseFare}
-              onChange={(e) => setConfig({ ...config, baseFare: Number(e.target.value) })}
-              className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              min={0}
-            />
-            <p className="text-[11px] text-slate-400 mt-1">= K{(config.baseFare / 100).toFixed(2)} starting fee</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Per KM Rate (ngwee)</label>
-            <input
-              type="number"
-              value={config.perKmRate}
-              onChange={(e) => setConfig({ ...config, perKmRate: Number(e.target.value) })}
-              className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              min={0}
-            />
-            <p className="text-[11px] text-slate-400 mt-1">= K{(config.perKmRate / 100).toFixed(2)} per kilometer</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Per Minute Rate (ngwee)</label>
-            <input
-              type="number"
-              value={config.perMinRate}
-              onChange={(e) => setConfig({ ...config, perMinRate: Number(e.target.value) })}
-              className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              min={0}
-            />
-            <p className="text-[11px] text-slate-400 mt-1">= K{(config.perMinRate / 100).toFixed(2)} per minute</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Cancellation Fee (ngwee)</label>
-            <input
-              type="number"
-              value={config.cancellationFee}
-              onChange={(e) => setConfig({ ...config, cancellationFee: Number(e.target.value) })}
-              className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              min={0}
-            />
-            <p className="text-[11px] text-slate-400 mt-1">= K{(config.cancellationFee / 100).toFixed(2)} charged on cancel</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Service Classes */}
+      {/* Ride Services */}
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center gap-3">
           <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
-            <TruckIcon className="h-4 w-4 text-white" />
+            <CurrencyDollarIcon className="h-4 w-4 text-white" />
           </div>
-          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-50">Service Classes</h2>
+          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-50">Ride Pricing</h2>
         </div>
         <div className="p-6 space-y-6">
-          {/* Booking Classes */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Booking Classes</label>
-            <div className="flex flex-wrap gap-2 mb-3">
-              {config.bookingClasses.map((cls) => (
-                <span
-                  key={cls}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 text-sm font-medium"
-                >
-                  {cls}
-                  <button
-                    onClick={() => setConfig({ ...config, bookingClasses: config.bookingClasses.filter(c => c !== cls) })}
-                    className="hover:text-red-500 transition-colors"
-                  >
-                    &times;
-                  </button>
-                </span>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={newBookingClass}
-                onChange={(e) => setNewBookingClass(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addBookingClass())}
-                placeholder="Add booking class..."
-                className="flex-1 px-3 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              />
-              <button onClick={addBookingClass} className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                Add
-              </button>
-            </div>
-          </div>
-
-          {/* Delivery Classes */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Delivery Classes</label>
-            <div className="flex flex-wrap gap-2 mb-3">
-              {config.deliveryClasses.map((cls) => (
-                <span
-                  key={cls}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-sm font-medium"
-                >
-                  {cls}
-                  <button
-                    onClick={() => setConfig({ ...config, deliveryClasses: config.deliveryClasses.filter(c => c !== cls) })}
-                    className="hover:text-red-500 transition-colors"
-                  >
-                    &times;
-                  </button>
-                </span>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={newDeliveryClass}
-                onChange={(e) => setNewDeliveryClass(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addDeliveryClass())}
-                placeholder="Add delivery class..."
-                className="flex-1 px-3 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              />
-              <button onClick={addDeliveryClass} className="px-4 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
-                Add
-              </button>
-            </div>
-          </div>
+          {rideServices.map((service) => {
+            const globalIndex = config.services.findIndex(s => s.id === service.id);
+            return (
+              <div key={service.id} className="border border-slate-200 dark:border-slate-600 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">{service.title} <span className="text-xs font-normal text-slate-400">({service.id})</span></h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Base Fare (K)</label>
+                    <input
+                      type="number"
+                      value={service.baseFare}
+                      onChange={(e) => updateService(globalIndex, 'baseFare', Number(e.target.value))}
+                      className={inputClass}
+                      min={0}
+                      step={0.5}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Per KM (K)</label>
+                    <input
+                      type="number"
+                      value={service.perKm}
+                      onChange={(e) => updateService(globalIndex, 'perKm', Number(e.target.value))}
+                      className={inputClass}
+                      min={0}
+                      step={0.5}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Per Minute (K)</label>
+                    <input
+                      type="number"
+                      value={service.perMinute}
+                      onChange={(e) => updateService(globalIndex, 'perMinute', Number(e.target.value))}
+                      className={inputClass}
+                      min={0}
+                      step={0.1}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* Platform Rules */}
+      {/* Delivery Services */}
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-violet-500 to-violet-600">
-            <ShieldCheckIcon className="h-4 w-4 text-white" />
+          <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600">
+            <TruckIcon className="h-4 w-4 text-white" />
           </div>
-          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-50">Platform Rules</h2>
+          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-50">Delivery Pricing</h2>
         </div>
-        <div className="p-6 space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Max Active Rides per Driver</label>
-            <input
-              type="number"
-              value={config.maxActiveRidesPerDriver}
-              onChange={(e) => setConfig({ ...config, maxActiveRidesPerDriver: Number(e.target.value) })}
-              className="w-48 px-3 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              min={1}
-              max={5}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Driver Approval Required</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">New drivers must be approved before accepting rides</p>
-            </div>
-            <button
-              onClick={() => setConfig({ ...config, driverApprovalRequired: !config.driverApprovalRequired })}
-              className={`relative w-11 h-6 rounded-full transition-colors ${
-                config.driverApprovalRequired ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-600'
-              }`}
-            >
-              <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
-                config.driverApprovalRequired ? 'translate-x-5' : ''
-              }`} />
-            </button>
-          </div>
+        <div className="p-6 space-y-6">
+          {deliveryServices.map((service) => {
+            const globalIndex = config.services.findIndex(s => s.id === service.id);
+            return (
+              <div key={service.id} className="border border-slate-200 dark:border-slate-600 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">{service.title} <span className="text-xs font-normal text-slate-400">({service.id})</span></h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Base Fare (K)</label>
+                    <input
+                      type="number"
+                      value={service.baseFare}
+                      onChange={(e) => updateService(globalIndex, 'baseFare', Number(e.target.value))}
+                      className={inputClass}
+                      min={0}
+                      step={0.5}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Per KM (K)</label>
+                    <input
+                      type="number"
+                      value={service.perKm}
+                      onChange={(e) => updateService(globalIndex, 'perKm', Number(e.target.value))}
+                      className={inputClass}
+                      min={0}
+                      step={0.5}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Per Minute (K)</label>
+                    <input
+                      type="number"
+                      value={service.perMinute}
+                      onChange={(e) => updateService(globalIndex, 'perMinute', Number(e.target.value))}
+                      className={inputClass}
+                      min={0}
+                      step={0.1}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -308,7 +226,7 @@ export default function SettingsPage() {
           disabled={saving}
           className="px-6 py-2.5 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-600 disabled:cursor-not-allowed transition-colors"
         >
-          {saving ? 'Saving...' : 'Save Settings'}
+          {saving ? 'Saving...' : 'Save Pricing'}
         </button>
       </div>
     </div>

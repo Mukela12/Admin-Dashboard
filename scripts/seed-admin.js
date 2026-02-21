@@ -1,6 +1,6 @@
 /**
  * Seed Admin Credentials Script
- * Seeds the Firestore `admins` collection with an admin user.
+ * Seeds the Firestore `admins` collection with admin users.
  *
  * Usage: node scripts/seed-admin.js
  */
@@ -27,19 +27,28 @@ async function seedAdmin() {
 
   const db = admin.firestore();
 
-  const email = 'Jessekatungu@gmail.com';
-  const password = 'Milan18$';
-  const hashedPassword = await bcrypt.hash(password, 12);
+  const admins = [
+    { email: 'Jessekatungu@gmail.com', password: 'Milan18$', role: 'super-admin' },
+    { email: 'Mukelathegreat@gmail.com', password: 'securePassword123', role: 'super-admin' },
+  ];
 
-  await db.collection('admins').doc(email).set({
-    email,
-    password: hashedPassword,
-    role: 'superadmin',
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-  });
+  for (const a of admins) {
+    const existing = await db.collection('admins').doc(a.email).get();
+    if (existing.exists) {
+      console.log(`[SKIP] ${a.email} already exists`);
+      continue;
+    }
+    const hashedPassword = await bcrypt.hash(a.password, 12);
+    await db.collection('admins').doc(a.email).set({
+      email: a.email,
+      password: hashedPassword,
+      role: a.role,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    console.log(`[CREATED] ${a.email}`);
+  }
 
-  console.log(`Admin seeded: ${email}`);
   process.exit(0);
 }
 
